@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /* Copyright (c) 2011-2014 PLUMgrid, http://plumgrid.com
  */
+#include "linux/bpf.h"
+#include "linux/printk.h"
 #include <linux/bpf.h>
 #include <linux/bpf-cgroup.h>
 #include <linux/bpf_trace.h>
@@ -2675,6 +2677,11 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 		return -EINVAL;
 	}
 
+	
+	if (attr->expected_attach_type == BPF_REDACTOR) {
+		printk("MB - fixup attach type - successfull");
+	}
+
 	/* plain bpf_prog allocation */
 	prog = bpf_prog_alloc(bpf_prog_size(attr->insn_cnt), GFP_USER);
 	if (!prog) {
@@ -3775,6 +3782,8 @@ attach_type_to_prog_type(enum bpf_attach_type attach_type)
 	case BPF_NETKIT_PRIMARY:
 	case BPF_NETKIT_PEER:
 		return BPF_PROG_TYPE_SCHED_CLS;
+	case BPF_REDACTOR:
+		return BPF_PROG_TYPE_REDACTOR;
 	default:
 		return BPF_PROG_TYPE_UNSPEC;
 	}

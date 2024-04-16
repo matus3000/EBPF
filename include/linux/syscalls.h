@@ -958,6 +958,10 @@ asmlinkage long sys_map_shadow_stack(unsigned long addr, unsigned long size, uns
 /* x86 */
 asmlinkage long sys_ioperm(unsigned long from, unsigned long num, int on);
 
+asmlinkage long sys_count_redactions(unsigned int fd);
+
+asmlinkage long sys_reset_redactions(unsigned int fd);
+
 /* pciconfig: alpha, arm, arm64, ia64, sparc */
 asmlinkage long sys_pciconfig_read(unsigned long bus, unsigned long dfn,
 				unsigned long off, unsigned long len,

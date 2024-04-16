@@ -1493,6 +1493,16 @@ SYSCALL_DEFINE4(openat2, int, dfd, const char __user *, filename,
 	return do_sys_openat2(dfd, filename, &tmp);
 }
 
+SYSCALL_DEFINE1(count_redactions, int, fd)
+{
+	return 1;
+}
+
+SYSCALL_DEFINE1(reset_redactions, int, fd)
+{
+	return 2;
+}
+
 #ifdef CONFIG_COMPAT
 /*
  * Exactly like sys_open(), except that it doesn't set the

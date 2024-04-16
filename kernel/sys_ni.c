@@ -290,6 +290,8 @@ COND_SYSCALL(modify_ldt);
 COND_SYSCALL(vm86);
 COND_SYSCALL(kexec_file_load);
 COND_SYSCALL(map_shadow_stack);
+COND_SYSCALL(count_redactions);
+COND_SYSCALL(reset_redactions);
 
 /* s390 */
 COND_SYSCALL(s390_pci_mmio_read);
