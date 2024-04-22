@@ -17394,7 +17394,7 @@ static int save_aux_ptr_type(struct bpf_verifier_env *env, enum bpf_reg_type typ
 			*prev_type = PTR_TO_BTF_ID | PTR_UNTRUSTED;
 		} else {
 			verbose(env, "same insn cannot be used with different pointers\n");
-			return -EINVAL;
+			return -EINVAL; /*  */
 		}
 	}
 

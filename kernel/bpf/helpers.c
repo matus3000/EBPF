@@ -1662,13 +1662,57 @@ BPF_CALL_3(bpf_dynptr_data, const struct bpf_dynptr_kern *, ptr, u32, offset, u3
 }
 
 static const struct bpf_func_proto bpf_dynptr_data_proto = {
-	.func		= bpf_dynptr_data,
-	.gpl_only	= false,
-	.ret_type	= RET_PTR_TO_DYNPTR_MEM_OR_NULL,
-	.arg1_type	= ARG_PTR_TO_DYNPTR | MEM_RDONLY,
-	.arg2_type	= ARG_ANYTHING,
-	.arg3_type	= ARG_CONST_ALLOC_SIZE_OR_ZERO,
+	.func = bpf_dynptr_data,
+	.gpl_only = false,
+	.ret_type = RET_PTR_TO_DYNPTR_MEM_OR_NULL,
+	.arg1_type = ARG_PTR_TO_DYNPTR | MEM_RDONLY,
+	.arg2_type = ARG_ANYTHING,
+	.arg3_type = ARG_CONST_ALLOC_SIZE_OR_ZERO,
 };
+
+BPF_CALL_4(bpf_copy_to_buffer, void *, ctx, unsigned long, offset, void *, ptr, unsigned long, size)
+{
+	return 0;
+}
+
+/* Unlike other PTR_TO_BTF_ID helpers the btf_id in bpf_kptr_xchg()
+ * helper is determined dynamically by the verifier. Use BPF_PTR_POISON to
+ * denote type that verifier will determine.
+ */
+static const struct bpf_func_proto bpf_copy_to_buffer_proto = {
+	.func = bpf_copy_to_buffer,
+	.gpl_only = false,
+	.ret_type = RET_INTEGER,
+	.ret_btf_id = BPF_PTR_POISON,
+	.arg1_type = ARG_PTR_TO_CTX,
+	.arg2_type = ARG_ANYTHING,
+	.arg2_btf_id = BPF_PTR_POISON,
+	.arg3_type = ARG_PTR_TO_MEM,
+	.arg4_type = ARG_ANYTHING
+};
+
+BPF_CALL_4(bpf_copy_from_buffer, void *, ctx, unsigned long, offset, void *, ptr, unsigned long, size)
+{
+	return 0;
+}
+
+/* Unlike other PTR_TO_BTF_ID helpers the btf_id in bpf_kptr_xchg()
+ * helper is determined dynamically by the verifier. Use BPF_PTR_POISON to
+ * denote type that verifier will determine.
+ */
+static const struct bpf_func_proto bpf_copy_from_buffer_proto = {
+	.func         = bpf_copy_from_buffer,
+	.gpl_only     = false,
+	.ret_type     = RET_INTEGER,
+	.ret_btf_id   = BPF_PTR_POISON ,
+	.arg1_type    = ARG_PTR_TO_CTX,
+	.arg2_type    = ARG_ANYTHING,
+	.arg2_btf_id  = BPF_PTR_POISON,
+	.arg3_type    = ARG_PTR_TO_MEM,
+	.arg4_type    = ARG_ANYTHING
+};
+
+
 
 const struct bpf_func_proto bpf_get_current_task_proto __weak;
 const struct bpf_func_proto bpf_get_current_task_btf_proto __weak;
@@ -2589,6 +2633,14 @@ BTF_ID_FLAGS(func, bpf_dynptr_is_rdonly)
 BTF_ID_FLAGS(func, bpf_dynptr_size)
 BTF_ID_FLAGS(func, bpf_dynptr_clone)
 BTF_SET8_END(common_btf_ids)
+
+
+BTF_SET8_START(redactor_btf_ids)
+BTF_ID_FLAGS(func, bpf_copy_to_buffer)
+BTF_ID_FLAGS(func, bpf_copy_from_buffer)
+BTF_SET8_END(redactor_btf_ids)
+
+
 
 static const struct btf_kfunc_id_set common_kfunc_set = {
 	.owner = THIS_MODULE,

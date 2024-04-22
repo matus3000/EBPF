@@ -1,6 +1,8 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /* internal file - do not include directly */
 
+#include "linux/bpf.h"
+#include "linux/fs_bpf_redactor.h"
 #ifdef CONFIG_NET
 BPF_PROG_TYPE(BPF_PROG_TYPE_SOCKET_FILTER, sk_filter,
 	      struct __sk_buff, struct sk_buff)
@@ -83,6 +85,8 @@ BPF_PROG_TYPE(BPF_PROG_TYPE_SYSCALL, bpf_syscall,
 BPF_PROG_TYPE(BPF_PROG_TYPE_NETFILTER, netfilter,
 	      struct bpf_nf_ctx, struct bpf_nf_ctx)
 #endif
+
+BPF_PROG_TYPE(BPF_PROG_TYPE_REDACTOR, redactor, struct redactor_ctx, struct redactor_ctx)
 
 BPF_MAP_TYPE(BPF_MAP_TYPE_ARRAY, array_map_ops)
 BPF_MAP_TYPE(BPF_MAP_TYPE_PERCPU_ARRAY, percpu_array_map_ops)

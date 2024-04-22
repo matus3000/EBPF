@@ -55,7 +55,7 @@ obj-$(CONFIG_KERNFS)		+= kernfs/
 obj-$(CONFIG_SYSFS)		+= sysfs/
 obj-$(CONFIG_CONFIGFS_FS)	+= configfs/
 obj-y				+= devpts/
-
+obj-y				+= fs_bpf/
 obj-$(CONFIG_DLM)		+= dlm/
  
 # Do not add any filesystems before this line

@@ -2,6 +2,7 @@
 /* Copyright (c) 2011-2014 PLUMgrid, http://plumgrid.com
  */
 #include "linux/bpf.h"
+#include "linux/errno.h"
 #include "linux/printk.h"
 #include <linux/bpf.h>
 #include <linux/bpf-cgroup.h>
@@ -38,6 +39,7 @@
 #include <linux/memcontrol.h>
 #include <linux/trace_events.h>
 
+#include <linux/fs_bpf_redactor.h>
 #include <net/netfilter/nf_bpf_link.h>
 #include <net/netkit.h>
 #include <net/tcx.h>
@@ -2533,6 +2535,12 @@ bpf_prog_load_check_attach(enum bpf_prog_type prog_type,
 		if (expected_attach_type)
 			return -EINVAL;
 		fallthrough;
+	case BPF_PROG_TYPE_REDACTOR:
+		if (expected_attach_type == BPF_REDACTOR) {
+			printk("MB - bpf_prog_load_check_attach - BPF_PROG_TYPE_REDACTOR - BPF_REDACTOR");
+			return 0;
+		}
+		return -EINVAL;
 	default:
 		return 0;
 	}
@@ -2592,7 +2600,7 @@ static bool is_perfmon_prog_type(enum bpf_prog_type prog_type)
 
 static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 {
-	enum bpf_prog_type type = attr->prog_type;
+  enum bpf_prog_type type = attr->prog_type; //
 	struct bpf_prog *prog, *dst_prog = NULL;
 	struct btf *attach_btf = NULL;
 	int err;
@@ -2675,11 +2683,6 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 		if (attach_btf)
 			btf_put(attach_btf);
 		return -EINVAL;
-	}
-
-	
-	if (attr->expected_attach_type == BPF_REDACTOR) {
-		printk("MB - fixup attach type - successfull");
 	}
 
 	/* plain bpf_prog allocation */
@@ -3924,6 +3927,15 @@ static int bpf_prog_attach(const union bpf_attr *attr)
 			ret = tcx_prog_attach(attr, prog);
 		else
 			ret = netkit_prog_attach(attr, prog);
+		break;
+	case BPF_PROG_TYPE_REDACTOR:
+		if (prog->expected_attach_type != BPF_REDACTOR)
+			ret = -EINVAL;
+		else {
+			ret = -ENOTSUPP;
+			printk("No support for bpf_attach");
+		}
+		
 		break;
 	default:
 		ret = -EINVAL;
