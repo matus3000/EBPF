@@ -3661,9 +3661,13 @@ static int bpf_raw_tp_link_attach(struct bpf_prog *prog,
 		buf[sizeof(buf) - 1] = 0;
 		tp_name = buf;
 		break;
+	case BPF_PROG_TYPE_REDACTOR:
+		printk("MB bpf-raw tp link attach %s", tp_name);
+		break;
 	default:
 		return -EINVAL;
 	}
+
 
 	btp = bpf_get_raw_tracepoint(tp_name);
 	if (!btp)
