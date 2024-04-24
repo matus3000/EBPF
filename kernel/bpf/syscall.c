@@ -2537,7 +2537,7 @@ bpf_prog_load_check_attach(enum bpf_prog_type prog_type,
 		fallthrough;
 	case BPF_PROG_TYPE_REDACTOR:
 		if (expected_attach_type == BPF_REDACTOR) {
-			printk("MB - bpf_prog_load_check_attach - BPF_PROG_TYPE_REDACTOR - BPF_REDACTOR");
+			pr_info("MB - bpf_prog_load_check_attach - BPF_PROG_TYPE_REDACTOR - BPF_REDACTOR");
 			return 0;
 		}
 		return -EINVAL;
@@ -2605,10 +2605,10 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 	struct btf *attach_btf = NULL;
 	int err;
 	char license[128];
-	printk("bpf_prog_load - MB - switch(cmd)");
+	pr_info("bpf_prog_load - MB - switch(cmd)");
 	if (CHECK_ATTR(BPF_PROG_LOAD))
 	{
-		printk("bpf_prog_load - MB - CHECK_ATTR - failed");
+		pr_info("bpf_prog_load - MB - CHECK_ATTR - failed");
 		return -EINVAL;
 	}
 	
@@ -2621,7 +2621,7 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 				 BPF_F_XDP_HAS_FRAGS |
 				 BPF_F_XDP_DEV_BOUND_ONLY))
 	{
-		printk("bpf_prog_load - MB - attr->prog_flags check - failed");
+		pr_info("bpf_prog_load - MB - attr->prog_flags check - failed");
 		return -EINVAL;
 	}
 
@@ -2654,7 +2654,7 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 	if (is_perfmon_prog_type(type) && !perfmon_capable())
 		return -EPERM;
 
-	printk("bpf_prog_load - MB - attr->attach_prog_fd if - before");
+	pr_info("bpf_prog_load - MB - attr->attach_prog_fd if - before");
 
 
 	/* attach_prog_fd/attach_btf_obj_fd can specify fd of either bpf_prog
@@ -2684,14 +2684,14 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 			return -EINVAL;
 		btf_get(attach_btf);
 	}
-	printk("bpf_prog_load - MB - attr->attach_prog_fd if - end");
+	pr_info("bpf_prog_load - MB - attr->attach_prog_fd if - end");
 	
 	
 	bpf_prog_load_fixup_attach_type(attr);
 	if (bpf_prog_load_check_attach(type, attr->expected_attach_type,
 				       attach_btf, attr->attach_btf_id,
 				       dst_prog)) {
-		printk("bpf_prog_load - MB - bpf_prog_load_check_attach - fail");
+		pr_info("bpf_prog_load - MB - bpf_prog_load_check_attach - fail");
 		if (dst_prog)
 			bpf_prog_put(dst_prog);
 		if (attach_btf)
@@ -5423,7 +5423,7 @@ out_prog_put:
 
 static int __sys_bpf(int cmd, bpfptr_t uattr, unsigned int size)
 {
-	printk("__sys_bpf - MB - calling of __sys_bpf");
+	pr_info("__sys_bpf - MB - calling of __sys_bpf");
 	union bpf_attr attr;
 	int err;
 
@@ -5436,17 +5436,17 @@ static int __sys_bpf(int cmd, bpfptr_t uattr, unsigned int size)
 	memset(&attr, 0, sizeof(attr));
 	if (copy_from_bpfptr(&attr, uattr, size) != 0)
 	{
-		printk("__sys_bpf - MB - copy_from_bpfptr fail");
+		pr_info("__sys_bpf - MB - copy_from_bpfptr fail");
 		return -EFAULT;
 	}
 	
 
 	err = security_bpf(cmd, &attr, size);
 	if (err < 0)
-		printk("__sys_bpf - MB - security_bpf fail"); return err;
+		pr_info("__sys_bpf - MB - security_bpf fail"); return err;
 	
-	printk("__sys_bpf - MB - security_bpf success");
-	printk("__sys_bpf - MB - switch(cmd)");
+	pr_info("__sys_bpf - MB - security_bpf success");
+	pr_info("__sys_bpf - MB - switch(cmd)");
 
 	switch (cmd) {
 	case BPF_MAP_CREATE:
