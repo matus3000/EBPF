@@ -5443,7 +5443,7 @@ static int __sys_bpf(int cmd, bpfptr_t uattr, unsigned int size)
 
 	err = security_bpf(cmd, &attr, size);
 	if (err < 0)
-		pr_info("__sys_bpf - MB - security_bpf fail"); return err;
+		{pr_info("__sys_bpf - MB - security_bpf fail"); return err;}
 	
 	pr_info("__sys_bpf - MB - security_bpf success");
 	pr_info("__sys_bpf - MB - switch(cmd)");
