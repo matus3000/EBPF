@@ -2605,9 +2605,13 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 	struct btf *attach_btf = NULL;
 	int err;
 	char license[128];
-
+	printk("bpf_prog_load - MB - switch(cmd)");
 	if (CHECK_ATTR(BPF_PROG_LOAD))
+	{
+		printk("bpf_prog_load - MB - CHECK_ATTR - failed");
 		return -EINVAL;
+	}
+	
 
 	if (attr->prog_flags & ~(BPF_F_STRICT_ALIGNMENT |
 				 BPF_F_ANY_ALIGNMENT |
@@ -2616,7 +2620,11 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 				 BPF_F_TEST_RND_HI32 |
 				 BPF_F_XDP_HAS_FRAGS |
 				 BPF_F_XDP_DEV_BOUND_ONLY))
+	{
+		printk("bpf_prog_load - MB - attr->prog_flags check - failed");
 		return -EINVAL;
+	}
+
 
 	if (!IS_ENABLED(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) &&
 	    (attr->prog_flags & BPF_F_ANY_ALIGNMENT) &&
@@ -2646,6 +2654,9 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 	if (is_perfmon_prog_type(type) && !perfmon_capable())
 		return -EPERM;
 
+	printk("bpf_prog_load - MB - attr->attach_prog_fd if - before");
+
+
 	/* attach_prog_fd/attach_btf_obj_fd can specify fd of either bpf_prog
 	 * or btf, we need to check which one it is
 	 */
@@ -2673,11 +2684,14 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 			return -EINVAL;
 		btf_get(attach_btf);
 	}
-
+	printk("bpf_prog_load - MB - attr->attach_prog_fd if - end");
+	
+	
 	bpf_prog_load_fixup_attach_type(attr);
 	if (bpf_prog_load_check_attach(type, attr->expected_attach_type,
 				       attach_btf, attr->attach_btf_id,
 				       dst_prog)) {
+		printk("bpf_prog_load - MB - bpf_prog_load_check_attach - fail");
 		if (dst_prog)
 			bpf_prog_put(dst_prog);
 		if (attach_btf)
@@ -5409,6 +5423,7 @@ out_prog_put:
 
 static int __sys_bpf(int cmd, bpfptr_t uattr, unsigned int size)
 {
+	printk("__sys_bpf - MB - calling of __sys_bpf");
 	union bpf_attr attr;
 	int err;
 
@@ -5420,11 +5435,18 @@ static int __sys_bpf(int cmd, bpfptr_t uattr, unsigned int size)
 	/* copy attributes from user space, may be less than sizeof(bpf_attr) */
 	memset(&attr, 0, sizeof(attr));
 	if (copy_from_bpfptr(&attr, uattr, size) != 0)
+	{
+		printk("__sys_bpf - MB - copy_from_bpfptr fail");
 		return -EFAULT;
+	}
+	
 
 	err = security_bpf(cmd, &attr, size);
 	if (err < 0)
-		return err;
+		printk("__sys_bpf - MB - security_bpf fail"); return err;
+	
+	printk("__sys_bpf - MB - security_bpf success");
+	printk("__sys_bpf - MB - switch(cmd)");
 
 	switch (cmd) {
 	case BPF_MAP_CREATE:

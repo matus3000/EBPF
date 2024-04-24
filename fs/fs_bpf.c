@@ -7,6 +7,7 @@
 #include "linux/fs_bpf_redactor.h"
 
 
+
 int bpf_prog_test_run_redactor(struct bpf_prog *prog,
 			 const union bpf_attr *kattr,
 			 union bpf_attr __user *uattr)
@@ -76,7 +77,20 @@ bpf_redactor_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 	return bpf_base_func_proto(func_id);
 }
 
+
+int bpf_redactor_decide(struct redactor_ctx *x)
+{
+  return 0;
+}
+
+int bpf_redactor_redact(struct redactor_ctx *prg)
+{
+  return 0;
+}
+
+
 const struct bpf_verifier_ops redactor_verifier_ops = {
 	.is_valid_access	= redactor_is_valid_access,
 	.get_func_proto		= bpf_redactor_func_proto,
 };
+

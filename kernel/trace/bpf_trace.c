@@ -2278,6 +2278,7 @@ extern struct bpf_raw_event_map __stop__bpf_raw_tp[];
 
 struct bpf_raw_event_map *bpf_get_raw_tracepoint(const char *name)
 {
+	//MB - 24.04 visit
 	struct bpf_raw_event_map *btp = __start__bpf_raw_tp;
 
 	for (; btp < __stop__bpf_raw_tp; btp++) {
