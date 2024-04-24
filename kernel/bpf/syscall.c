@@ -2452,6 +2452,9 @@ bpf_prog_load_check_attach(enum bpf_prog_type prog_type,
 		case BPF_PROG_TYPE_STRUCT_OPS:
 		case BPF_PROG_TYPE_EXT:
 			break;
+		case BPF_PROG_TYPE_REDACTOR:
+			pr_info("bpf_prog_load_check_attach - MB - redactor - btf_id - %d", btf_id);
+			break;
 		default:
 			return -EINVAL;
 		}
@@ -2691,7 +2694,7 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 	if (bpf_prog_load_check_attach(type, attr->expected_attach_type,
 				       attach_btf, attr->attach_btf_id,
 				       dst_prog)) {
-		pr_info("bpf_prog_load - MB - bpf_prog_load_check_attach - fail");
+		pr_info("bpf_prog_load - MB - bpf_prog_load_check_attach - fail - for type %d", type);
 		if (dst_prog)
 			bpf_prog_put(dst_prog);
 		if (attach_btf)
@@ -2699,9 +2702,11 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 		return -EINVAL;
 	}
 
+
 	/* plain bpf_prog allocation */
 	prog = bpf_prog_alloc(bpf_prog_size(attr->insn_cnt), GFP_USER);
 	if (!prog) {
+		pr_info("bpf_prog_load - MB - bpf_prog_alloc - fail - for type %d", type);
 		if (dst_prog)
 			bpf_prog_put(dst_prog);
 		if (attach_btf)
@@ -2717,9 +2722,11 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 	prog->aux->sleepable = attr->prog_flags & BPF_F_SLEEPABLE;
 	prog->aux->xdp_has_frags = attr->prog_flags & BPF_F_XDP_HAS_FRAGS;
 
+	pr_info("bpf_prog_load - MB - security_bpf_prog_alloc - start");
 	err = security_bpf_prog_alloc(prog->aux);
 	if (err)
 		goto free_prog;
+	pr_info("bpf_prog_load - MB - security_bpf_prog_alloc - end");
 
 	prog->aux->user = get_current_user();
 	prog->len = attr->insn_cnt;
@@ -2768,11 +2775,13 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 	if (err < 0)
 		goto free_prog_sec;
 
+	pr_info("bpf_prog_load - MB - bpf_check - start");
 	/* run eBPF verifier */
 	err = bpf_check(&prog, attr, uattr, uattr_size);
 	if (err < 0)
 		goto free_used_maps;
-
+	pr_info("bpf_prog_load - MB - bpf_check - end");
+	
 	prog = bpf_prog_select_runtime(prog, &err);
 	if (err < 0)
 		goto free_used_maps;
