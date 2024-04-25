@@ -3685,7 +3685,20 @@ static int bpf_raw_tp_link_attach(struct bpf_prog *prog,
 		tp_name = buf;
 		break;
 	case BPF_PROG_TYPE_REDACTOR:
-		printk("MB bpf-raw tp link attach %s", tp_name);
+		if (user_tp_name)
+		{
+			/* The attach point for this category of programs
+			 * should be specified via btf_id during program load.
+			 */
+			pr_info("bpf_raw_tp_link_attach - MB -  user_tp_name != null - %s", user_tp_name);
+			return -EINVAL;
+		}
+		if (prog->type == BPF_PROG_TYPE_REDACTOR &&
+		    prog->expected_attach_type == BPF_REDACTOR)
+		{
+			tp_name = prog->aux->attach_func_name;
+			pr_info ("bpf_raw_tp_link_attach - MB - tp_name := %s", tp_name);
+		}
 		break;
 	default:
 		return -EINVAL;
@@ -3693,8 +3706,11 @@ static int bpf_raw_tp_link_attach(struct bpf_prog *prog,
 
 
 	btp = bpf_get_raw_tracepoint(tp_name);
-	if (!btp)
+	if (!btp) {
+		pr_info("bpf_raw_tp_link_attach - MB - bpf_get_raw_tracepoint fail");
 		return -ENOENT;
+	}
+	
 
 	link = kzalloc(sizeof(*link), GFP_USER);
 	if (!link) {
@@ -3707,12 +3723,14 @@ static int bpf_raw_tp_link_attach(struct bpf_prog *prog,
 
 	err = bpf_link_prime(&link->link, &link_primer);
 	if (err) {
+		pr_info("bpf_raw_tp_link_attach - MB - bpf_link_prime fail");
 		kfree(link);
 		goto out_put_btp;
 	}
 
 	err = bpf_probe_register(link->btp, prog);
 	if (err) {
+		pr_info("bpf_raw_tp_link_attach - MB - bpf_get_raw_tracepoint fail");
 		bpf_link_cleanup(&link_primer);
 		goto out_put_btp;
 	}
