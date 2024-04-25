@@ -20409,7 +20409,7 @@ int bpf_check_attach_target(struct bpf_verifier_log *log,
 			return -EINVAL;
 		}
 		conservative = aux->func_info_aux[subprog].unreliable;
-		pr_info("bpf_check_attach_target - MB - tgt_prog is conservative - %b", conservative);
+
 		if (prog_extension) {
 			if (conservative) {
 				bpf_log(log,
