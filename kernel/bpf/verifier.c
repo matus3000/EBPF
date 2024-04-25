@@ -20281,6 +20281,7 @@ static int check_struct_ops_btf_id(struct bpf_verifier_env *env)
 			btf_id);
 		return -ENOTSUPP;
 	}
+	pr_info("check_struct_ops_btf_id - MB - btf_id %d", btf_id);
 
 	t = st_ops->type;
 	member_idx = prog->expected_attach_type;
@@ -20351,6 +20352,7 @@ int bpf_check_attach_target(struct bpf_verifier_log *log,
 			    struct bpf_attach_target_info *tgt_info)
 {
 	bool prog_extension = prog->type == BPF_PROG_TYPE_EXT;
+	bool prog_redactor = prog->type == BPF_PROG_TYPE_REDACTOR;
 	const char prefix[] = "btf_trace_";
 	int ret = 0, subprog = -1, i;
 	const struct btf_type *t;
@@ -20362,6 +20364,7 @@ int bpf_check_attach_target(struct bpf_verifier_log *log,
 
 	if (!btf_id) {
 		bpf_log(log, "Tracing programs must provide btf_id\n");
+		pr_info("bpf_check_attach_target - MB - btf_id == 0");
 		return -EINVAL;
 	}
 	btf = tgt_prog ? tgt_prog->aux->btf : prog->aux->attach_btf;
@@ -20405,6 +20408,7 @@ int bpf_check_attach_target(struct bpf_verifier_log *log,
 			return -EINVAL;
 		}
 		conservative = aux->func_info_aux[subprog].unreliable;
+		pr_info("bpf_check_attach_target - MB - tgt_prog is conservative - %b", conservative);
 		if (prog_extension) {
 			if (conservative) {
 				bpf_log(log,
@@ -20459,6 +20463,37 @@ int bpf_check_attach_target(struct bpf_verifier_log *log,
 	}
 
 	switch (prog->expected_attach_type) {
+	case BPF_REDACTOR:
+		pr_info("bpf_check_attach_target - MB - switch BPF_REDACTOR start");
+		if (!prog_redactor) {
+			bpf_log(log, "Only BPF_PROG_TYPE_REDACTOR can attach to BPF_REDACTOR");
+			return -EINVAL;
+		}
+		if (!btf_type_is_func(t)) {
+			bpf_log(log, "attach_btf_id %u is not a function\n",
+				btf_id);
+			return -EINVAL;
+		}
+		if (!btf_check_type_match(log, prog, btf, t)){
+			pr_info("bpf_check_attach_target - MB - type mismatch");
+			return -EINVAL;
+
+		}
+		t = btf_type_by_id(btf, t->type);
+		if (!btf_type_is_func_proto(t))
+		{
+			pr_info("bpf_check_attach_target - MB - is func proto fail");
+			return -EINVAL;
+		}
+
+
+		ret = btf_distill_func_proto(log, btf, t, tname, &tgt_info->fmodel);
+		if (ret < 0) {
+			pr_info("bpf_check_attach_target - distil fail");
+			return ret;
+		}
+		pr_info("bpf_check_attach_target - MB - switch BPF_REDACTOR end");
+		break;
 	case BPF_TRACE_RAW_TP:
 		if (tgt_prog) {
 			bpf_log(log,
@@ -20500,7 +20535,7 @@ int bpf_check_attach_target(struct bpf_verifier_log *log,
 			return ret;
 		break;
 	default:
-		if (!prog_extension)
+		if (!prog_extension && !prog_redactor)
 			return -EINVAL;
 		fallthrough;
 	case BPF_MODIFY_RETURN:
@@ -20516,14 +20551,18 @@ int bpf_check_attach_target(struct bpf_verifier_log *log,
 		if (prog_extension &&
 		    btf_check_type_match(log, prog, btf, t))
 			return -EINVAL;
+			
 		t = btf_type_by_id(btf, t->type);
 		if (!btf_type_is_func_proto(t))
 			return -EINVAL;
+			
 
 		if ((prog->aux->saved_dst_prog_type || prog->aux->saved_dst_attach_type) &&
 		    (!tgt_prog || prog->aux->saved_dst_prog_type != tgt_prog->type ||
 		     prog->aux->saved_dst_attach_type != tgt_prog->expected_attach_type))
 			return -EINVAL;
+
+		
 
 		if (tgt_prog && conservative)
 			t = NULL;
@@ -20531,7 +20570,7 @@ int bpf_check_attach_target(struct bpf_verifier_log *log,
 		ret = btf_distill_func_proto(log, btf, t, tname, &tgt_info->fmodel);
 		if (ret < 0)
 			return ret;
-
+		
 		if (tgt_prog) {
 			if (subprog == 0)
 				addr = (long) tgt_prog->bpf_func;
@@ -20684,7 +20723,8 @@ static int check_attach_btf_id(struct bpf_verifier_env *env)
 
 	if (prog->type != BPF_PROG_TYPE_TRACING &&
 	    prog->type != BPF_PROG_TYPE_LSM &&
-	    prog->type != BPF_PROG_TYPE_EXT)
+	    prog->type != BPF_PROG_TYPE_EXT &&
+	    prog->type != BPF_PROG_TYPE_REDACTOR)
 		return 0;
 
 	ret = bpf_check_attach_target(&env->log, prog, tgt_prog, btf_id, &tgt_info);
