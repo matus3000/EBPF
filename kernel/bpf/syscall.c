@@ -3730,6 +3730,7 @@ static int bpf_raw_tp_link_attach(struct bpf_prog *prog,
 	pr_info("bpf_raw_tp_link_attach - MB - bpf_link_prime success");
 	
 	err = bpf_probe_register(link->btp, prog);
+	pr_info("bpf_raw_tp_link_attach - MB - bpf_probe_register");
 	if (err) {
 		pr_info("bpf_raw_tp_link_attach - MB - bpf_get_raw_tracepoint fail");
 		bpf_link_cleanup(&link_primer);
