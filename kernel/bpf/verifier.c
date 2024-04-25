@@ -28,6 +28,7 @@
 #include <linux/cpumask.h>
 #include <linux/bpf_mem_alloc.h>
 #include <net/xdp.h>
+#include <linux/printk.h>
 
 #include "disasm.h"
 
