@@ -3710,7 +3710,7 @@ static int bpf_raw_tp_link_attach(struct bpf_prog *prog,
 		pr_info("bpf_raw_tp_link_attach - MB - bpf_get_raw_tracepoint fail");
 		return -ENOENT;
 	}
-	
+	pr_info("bpf_raw_tp_link_attach - MB - bpf_get_raw_tracepoint success");
 
 	link = kzalloc(sizeof(*link), GFP_USER);
 	if (!link) {
@@ -3727,14 +3727,16 @@ static int bpf_raw_tp_link_attach(struct bpf_prog *prog,
 		kfree(link);
 		goto out_put_btp;
 	}
-
+	pr_info("bpf_raw_tp_link_attach - MB - bpf_link_prime success");
+	
 	err = bpf_probe_register(link->btp, prog);
 	if (err) {
 		pr_info("bpf_raw_tp_link_attach - MB - bpf_get_raw_tracepoint fail");
 		bpf_link_cleanup(&link_primer);
 		goto out_put_btp;
 	}
-
+	pr_info("bpf_raw_tp_link_attach - MB - bpf_probe_register success");
+	
 	return bpf_link_settle(&link_primer);
 
 out_put_btp:
