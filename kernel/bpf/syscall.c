@@ -3706,6 +3706,7 @@ static int bpf_raw_tp_link_attach(struct bpf_prog *prog,
 
 
 	btp = bpf_get_raw_tracepoint(tp_name);
+	pr_info("bpf_raw_tp_link_attach - MB - before if");
 	if (!btp) {
 		pr_info("bpf_raw_tp_link_attach - MB - bpf_get_raw_tracepoint fail");
 		return -ENOENT;
