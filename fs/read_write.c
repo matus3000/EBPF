@@ -425,8 +425,6 @@ ssize_t __kernel_read(struct file *file, void *buf, size_t count, loff_t *pos)
 	if (unlikely(!file->f_op->read_iter || file->f_op->read))
 		return warn_unsupported(file, "read");
 
-	trace_bpf_redacator_decide(NULL);
-	
 	init_sync_kiocb(&kiocb, file);
 	kiocb.ki_pos = pos ? *pos : 0;
 	iov_iter_kvec(&iter, ITER_DEST, &iov, 1, iov.iov_len);
