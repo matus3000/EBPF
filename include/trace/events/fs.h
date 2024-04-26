@@ -10,7 +10,7 @@
 
 struct redactor_ctx;
 
-TRACE_EVENT(bpf_redacator_decide,
+TRACE_EVENT(bpf_redactor_decide,
 	    TP_PROTO(const struct redactor_ctx *ctx),
 	    TP_ARGS(ctx),
 	    TP_STRUCT__entry(
