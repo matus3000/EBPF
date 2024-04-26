@@ -76,9 +76,14 @@ out:
 	mutex_unlock(&bpf_module_mutex);
 
 	if (ret != NULL)
-		pr_info("bpf_get_raw_tracepoint_module - MB - end - ret is not null");
+	{
+	    pr_info("bpf_get_raw_tracepoint_module - MB - end - ret is not null");
+	}
 	else
-		pr_info("bpf_get_raw_tracepoint_module - MB - end - ret is null");
+	{
+	  pr_info("bpf_get_raw_tracepoint_module - MB - end - ret is null");
+	}
+	
 	
 	return ret;
 }
@@ -2296,7 +2301,9 @@ struct bpf_raw_event_map *bpf_get_raw_tracepoint(const char *name)
 	}
 
 	pr_info("bpf_get_raw_tracepoint - MB - no return from for");
-	return bpf_get_raw_tracepoint_module(name);
+        btp = bpf_get_raw_tracepoint_module(name);
+	pr_info("bpf_get_raw_tracepoint - MB -return from bpf_get_raw_tracepoint_modul");
+	return btp;
 }
 
 void bpf_put_raw_tracepoint(struct bpf_raw_event_map *btp)
