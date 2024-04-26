@@ -25,6 +25,7 @@
 #include <linux/uaccess.h>
 #include <asm/unistd.h>
 
+#define CREATE_TRACE_POINTS
 #include <trace/events/fs.h>
 
 const struct file_operations generic_ro_fops = {
