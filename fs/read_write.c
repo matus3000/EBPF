@@ -26,7 +26,7 @@
 #include <asm/unistd.h>
 
 #define CREATE_TRACE_POINTS
-#include <trace/events/fs.h>
+#include <trace/events/bpf_redactor_redact.h>
 
 const struct file_operations generic_ro_fops = {
 	.llseek		= generic_file_llseek,
