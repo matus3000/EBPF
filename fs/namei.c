@@ -42,6 +42,9 @@
 #include <linux/init_task.h>
 #include <linux/uaccess.h>
 
+#define CREATE_TRACE_POINTS
+#include <trace/events/bpf_redactor_decide.h>
+
 #include "internal.h"
 #include "mount.h"
 
@@ -3815,6 +3818,11 @@ struct file *do_filp_open(int dfd, struct filename *pathname,
 		filp = path_openat(&nd, op, flags);
 	if (unlikely(filp == ERR_PTR(-ESTALE)))
 		filp = path_openat(&nd, op, flags | LOOKUP_REVAL);
+
+	// HERE insert bpf_redactor_decide - MB -
+	
+	//
+
 	restore_nameidata();
 	return filp;
 }

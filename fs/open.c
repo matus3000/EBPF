@@ -35,9 +35,6 @@
 #include <linux/mnt_idmapping.h>
 #include <linux/filelock.h>
 
-#define CREATE_TRACE_POINTS
-#include <trace/events/bpf_redactor_decide.h>
-
 #include "internal.h"
 
 int do_truncate(struct mnt_idmap *idmap, struct dentry *dentry,
