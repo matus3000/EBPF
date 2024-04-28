@@ -1675,13 +1675,9 @@ static const struct bpf_func_proto bpf_dynptr_data_proto = {
 
 BPF_CALL_4(bpf_copy_to_buffer, struct redactor_ctx*, ctx, unsigned long, offset, void *, ptr, unsigned long, size)
 {
-	return copy_to_user((void*) ctx->offset, ptr, size);
+	return copy_to_user((__force void __user *) ctx->offset, ptr, size);
 }
 
-/* Unlike other PTR_TO_BTF_ID helpers the btf_id in bpf_kptr_xchg()
- * helper is determined dynamically by the verifier. Use BPF_PTR_POISON to
- * denote type that verifier will determine.
- */
 static const struct bpf_func_proto bpf_copy_to_buffer_proto = {
 	.func = bpf_copy_to_buffer,
 	.gpl_only = false,
@@ -1694,7 +1690,7 @@ static const struct bpf_func_proto bpf_copy_to_buffer_proto = {
 
 BPF_CALL_4(bpf_copy_from_buffer, struct redactor_ctx*, ctx, unsigned long, offset, void *, ptr, unsigned long, size)
 {
-	return copy_from_user(ptr, (void *) ctx->offset, size);
+	return copy_from_user(ptr,  (__force void __user *) ctx->offset, size);
 }
 
 /* Unlike other PTR_TO_BTF_ID helpers the btf_id in bpf_kptr_xchg()
