@@ -15,6 +15,7 @@
 /* [Feb-Apr 2000, AV] Rewrite to the new namespace architecture.
  */
 
+#include "linux/printk.h"
 #include <linux/init.h>
 #include <linux/export.h>
 #include <linux/kernel.h>
@@ -41,9 +42,6 @@
 #include <linux/bitops.h>
 #include <linux/init_task.h>
 #include <linux/uaccess.h>
-
-#define CREATE_TRACE_POINTS
-#include <trace/events/bpf_redactor_decide.h>
 
 #include "internal.h"
 #include "mount.h"
@@ -3805,6 +3803,12 @@ static struct file *path_openat(struct nameidata *nd,
 	return ERR_PTR(error);
 }
 
+/* static int run_bpf_redactor_decide(void * ctx) */
+/* { */
+	
+/* 	return 0; */
+/* } */
+
 struct file *do_filp_open(int dfd, struct filename *pathname,
 		const struct open_flags *op)
 {
@@ -3819,9 +3823,10 @@ struct file *do_filp_open(int dfd, struct filename *pathname,
 	if (unlikely(filp == ERR_PTR(-ESTALE)))
 		filp = path_openat(&nd, op, flags | LOOKUP_REVAL);
 
-	// HERE insert bpf_redactor_decide - MB -
-	
-	//
+	/* // HERE insert bpf_redactor_decide - MB - */
+	/* int result = run_bpf_redactor_decide(NULL); */
+	/* pr_info("do_filp_open - MB - decide result %d", result); */
+	/* // */
 
 	restore_nameidata();
 	return filp;

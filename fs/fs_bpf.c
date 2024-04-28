@@ -4,8 +4,9 @@
 #include <linux/filter.h>
 #include <linux/kmod.h>
 #include <linux/module.h>
-#include "linux/fs_bpf_redactor.h"
+#include <linux/fs_bpf_redactor.h>
 
+#include "internal_redactor.h"
 
 
 int bpf_prog_test_run_redactor(struct bpf_prog *prog,
@@ -94,3 +95,37 @@ const struct bpf_verifier_ops redactor_verifier_ops = {
 	.get_func_proto		= bpf_redactor_func_proto,
 };
 
+int
+run_bpf_redactor(struct tracepoint* tp, void *ctx)
+{
+	int iter_probe;
+	rcu_read_lock();
+	int result = -EINVAL;
+
+	struct tracepoint_func* funcs = rcu_dereference(tp->funcs);
+	if (funcs)
+	{
+		pr_info("run_bpf_redactor - MB - Funkcje istnieją");
+
+		for (iter_probe = 0; funcs[iter_probe].func; iter_probe++)
+		{
+			
+		}
+		pr_info("run_bpf_redactor - MB - number of attached functions %d", iter_probe);
+		
+		for (iter_probe = 0; funcs[iter_probe].func; iter_probe++)
+		{
+			struct bpf_prog* prog = funcs[iter_probe].data;
+			if (prog->type == BPF_PROG_TYPE_REDACTOR)
+			{
+			  result = bpf_prog_run(prog, ctx);
+			  break;
+			}
+		}
+		
+	}
+	rcu_read_unlock();
+	pr_info("run_bpf_redactor - MB - result %d", result);
+	
+	return result;
+}
