@@ -182,6 +182,7 @@ static int init_file(struct file *f, int flags, const struct cred *cred)
 	 * refcount bumps we should reinitialize the reused file first.
 	 */
 	atomic_long_set(&f->f_count, 1);
+	f->f_redact = false;
 	return 0;
 }
 

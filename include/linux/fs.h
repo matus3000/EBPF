@@ -746,6 +746,8 @@ struct inode {
 #endif
 
 	void			*i_private; /* fs or device private pointer */
+	bool is_redacted;
+	
 } __randomize_layout;
 
 struct timespec64 timestamp_truncate(struct timespec64 t, struct inode *inode);
@@ -1027,6 +1029,7 @@ struct file {
 	struct address_space	*f_mapping;
 	errseq_t		f_wb_err;
 	errseq_t		f_sb_err; /* for syncfs */
+	bool                    f_redact;
 } __randomize_layout
   __attribute__((aligned(4)));	/* lest something weird decides that 2 is OK */
 
