@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /* Copyright (c) 2011-2014 PLUMgrid, http://plumgrid.com
  */
+
 #include <linux/bpf.h>
 #include <linux/btf.h>
 #include <linux/bpf-cgroup.h>
@@ -23,6 +24,8 @@
 #include <linux/btf_ids.h>
 #include <linux/bpf_mem_alloc.h>
 #include <linux/kasan.h>
+#include <linux/fs_bpf_redactor.h>
+#include <linux/uaccess.h>
 
 #include "../../lib/kstrtox.h"
 
@@ -1670,9 +1673,9 @@ static const struct bpf_func_proto bpf_dynptr_data_proto = {
 	.arg3_type = ARG_CONST_ALLOC_SIZE_OR_ZERO,
 };
 
-BPF_CALL_4(bpf_copy_to_buffer, void *, ctx, unsigned long, offset, void *, ptr, unsigned long, size)
+BPF_CALL_4(bpf_copy_to_buffer, struct redactor_ctx*, ctx, unsigned long, offset, void *, ptr, unsigned long, size)
 {
-	return 0;
+	return copy_to_user((void*) ctx->offset, ptr, size);
 }
 
 /* Unlike other PTR_TO_BTF_ID helpers the btf_id in bpf_kptr_xchg()
@@ -1683,17 +1686,15 @@ static const struct bpf_func_proto bpf_copy_to_buffer_proto = {
 	.func = bpf_copy_to_buffer,
 	.gpl_only = false,
 	.ret_type = RET_INTEGER,
-	.ret_btf_id = BPF_PTR_POISON,
-	.arg1_type = ARG_PTR_TO_CTX,
+	.arg1_type = ARG_PTR_TO_CTX | MEM_RDONLY,
 	.arg2_type = ARG_ANYTHING,
-	.arg2_btf_id = BPF_PTR_POISON,
 	.arg3_type = ARG_PTR_TO_MEM,
 	.arg4_type = ARG_ANYTHING
 };
 
-BPF_CALL_4(bpf_copy_from_buffer, void *, ctx, unsigned long, offset, void *, ptr, unsigned long, size)
+BPF_CALL_4(bpf_copy_from_buffer, struct redactor_ctx*, ctx, unsigned long, offset, void *, ptr, unsigned long, size)
 {
-	return 0;
+	return copy_from_user(ptr, (void *) ctx->offset, size);
 }
 
 /* Unlike other PTR_TO_BTF_ID helpers the btf_id in bpf_kptr_xchg()
