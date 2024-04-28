@@ -1,3 +1,4 @@
+#include "linux/bpf.h"
 #include <linux/stddef.h>
 #include <linux/printk.h>
 #include <linux/bpf.h>
@@ -76,7 +77,14 @@ static bool redactor_is_valid_access(int off, int size, enum bpf_access_type typ
 static const struct bpf_func_proto *
 bpf_redactor_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 {
-	return bpf_base_func_proto(func_id);
+	switch (func_id){
+	case BPF_FUNC_get_current_uid_gid:
+		return &bpf_get_current_uid_gid_proto;
+	case BPF_FUNC_get_current_pid_tgid:
+		return &bpf_get_current_pid_tgid_proto;
+	default:
+		return bpf_base_func_proto(func_id);
+	}
 }
 
 
