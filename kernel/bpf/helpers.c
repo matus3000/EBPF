@@ -1673,41 +1673,41 @@ static const struct bpf_func_proto bpf_dynptr_data_proto = {
 	.arg3_type = ARG_CONST_ALLOC_SIZE_OR_ZERO,
 };
 
-BPF_CALL_4(bpf_copy_to_buffer, struct redactor_ctx*, ctx, unsigned long, offset, void *, ptr, unsigned long, size)
-{
-	return copy_to_user((__force void __user *) ctx->offset, ptr, size);
-}
+/* BPF_CALL_4(bpf_copy_to_buffer, struct redactor_ctx*, ctx, unsigned long, offset, void *, ptr, unsigned long, size) */
+/* { */
+/* 	return copy_to_user((__force void __user *) ctx->offset, ptr, size); */
+/* } */
 
-static const struct bpf_func_proto bpf_copy_to_buffer_proto = {
-	.func = bpf_copy_to_buffer,
-	.gpl_only = false,
-	.ret_type = RET_INTEGER,
-	.arg1_type = ARG_PTR_TO_CTX | MEM_RDONLY,
-	.arg2_type = ARG_ANYTHING,
-	.arg3_type = ARG_PTR_TO_MEM,
-	.arg4_type = ARG_ANYTHING
-};
+/* static const struct bpf_func_proto bpf_copy_to_buffer_proto = { */
+/* 	.func = bpf_copy_to_buffer, */
+/* 	.gpl_only = false, */
+/* 	.ret_type = RET_INTEGER, */
+/* 	.arg1_type = ARG_PTR_TO_CTX | MEM_RDONLY, */
+/* 	.arg2_type = ARG_ANYTHING, */
+/* 	.arg3_type = ARG_PTR_TO_MEM, */
+/* 	.arg4_type = ARG_ANYTHING */
+/* }; */
 
-BPF_CALL_4(bpf_copy_from_buffer, struct redactor_ctx*, ctx, unsigned long, offset, void *, ptr, unsigned long, size)
-{
-	return copy_from_user(ptr,  (__force void __user *) ctx->offset, size);
-}
+/* BPF_CALL_4(bpf_copy_from_buffer, struct redactor_ctx*, ctx, unsigned long, offset, void *, ptr, unsigned long, size) */
+/* { */
+/* 	return copy_from_user(ptr,  (__force void __user *) ctx->offset, size); */
+/* } */
 
-/* Unlike other PTR_TO_BTF_ID helpers the btf_id in bpf_kptr_xchg()
- * helper is determined dynamically by the verifier. Use BPF_PTR_POISON to
- * denote type that verifier will determine.
- */
-static const struct bpf_func_proto bpf_copy_from_buffer_proto = {
-	.func         = bpf_copy_from_buffer,
-	.gpl_only     = false,
-	.ret_type     = RET_INTEGER,
-	.ret_btf_id   = BPF_PTR_POISON ,
-	.arg1_type    = ARG_PTR_TO_CTX,
-	.arg2_type    = ARG_ANYTHING,
-	.arg2_btf_id  = BPF_PTR_POISON,
-	.arg3_type    = ARG_PTR_TO_MEM,
-	.arg4_type    = ARG_ANYTHING
-};
+/* /\* Unlike other PTR_TO_BTF_ID helpers the btf_id in bpf_kptr_xchg() */
+/*  * helper is determined dynamically by the verifier. Use BPF_PTR_POISON to */
+/*  * denote type that verifier will determine. */
+/*  *\/ */
+/* static const struct bpf_func_proto bpf_copy_from_buffer_proto = { */
+/* 	.func         = bpf_copy_from_buffer, */
+/* 	.gpl_only     = false, */
+/* 	.ret_type     = RET_INTEGER, */
+/* 	.ret_btf_id   = BPF_PTR_POISON , */
+/* 	.arg1_type    = ARG_PTR_TO_CTX, */
+/* 	.arg2_type    = ARG_ANYTHING, */
+/* 	.arg2_btf_id  = BPF_PTR_POISON, */
+/* 	.arg3_type    = ARG_PTR_TO_MEM, */
+/* 	.arg4_type    = ARG_ANYTHING */
+/* }; */
 
 
 
@@ -2632,10 +2632,10 @@ BTF_ID_FLAGS(func, bpf_dynptr_clone)
 BTF_SET8_END(common_btf_ids)
 
 
-BTF_SET8_START(redactor_btf_ids)
-BTF_ID_FLAGS(func, bpf_copy_to_buffer)
-BTF_ID_FLAGS(func, bpf_copy_from_buffer)
-BTF_SET8_END(redactor_btf_ids)
+/* BTF_SET8_START(redactor_btf_ids) */
+/* BTF_ID_FLAGS(func, bpf_copy_to_buffer) */
+/* BTF_ID_FLAGS(func, bpf_copy_from_buffer) */
+/* BTF_SET8_END(redactor_btf_ids) */
 
 
 
