@@ -5,6 +5,8 @@
  *  Copyright (C) 1991, 1992  Linus Torvalds
  */
 
+
+#include "linux/printk.h"
 #include <linux/slab.h>
 #include <linux/stat.h>
 #include <linux/sched/xacct.h>
@@ -20,6 +22,7 @@
 #include <linux/compat.h>
 #include <linux/mount.h>
 #include <linux/fs.h>
+#include <linux/fs_bpf_redactor.h>
 #include "internal.h"
 
 #include <linux/uaccess.h>
@@ -27,6 +30,7 @@
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/bpf_redactor_redact.h>
+#include "internal_redactor.h"
 
 const struct file_operations generic_ro_fops = {
 	.llseek		= generic_file_llseek,
@@ -452,7 +456,9 @@ EXPORT_SYMBOL(kernel_read);
 
 ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
 {
+	// MB - vfs_read
 	ssize_t ret;
+	int ret_bpf;
 
 	if (!(file->f_mode & FMODE_READ))
 		return -EBADF;
@@ -474,6 +480,11 @@ ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
 	else
 		ret = -EINVAL;
 	if (ret > 0) {
+		if (file->f_redact) {
+			struct redactor_ctx ctx = {.offset = (loff_t) buf, .size = ret};
+			ret_bpf = run_bpf_redactor(&__tracepoint_bpf_redactor_redact, &ctx);
+			pr_info("vfs_read - MB - redactor readacte 0");
+		}
 		fsnotify_access(file);
 		add_rchar(current, ret);
 	}

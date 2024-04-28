@@ -100,7 +100,7 @@ run_bpf_redactor(struct tracepoint* tp, void *ctx)
 {
 	int iter_probe;
 	rcu_read_lock();
-	int result = -EINVAL;
+	int result = 0;
 
 	struct tracepoint_func* funcs = rcu_dereference(tp->funcs);
 	if (funcs)
