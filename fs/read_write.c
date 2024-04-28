@@ -479,14 +479,20 @@ ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
 		ret = new_sync_read(file, buf, count, pos);
 	else
 		ret = -EINVAL;
+	
 	if (ret > 0) {
 		if (file->f_redact) {
 			struct redactor_ctx ctx = {.offset = (loff_t) buf, .size = ret};
 			ret_bpf = run_bpf_redactor(&__tracepoint_bpf_redactor_redact, &ctx);
-			pr_info("vfs_read - MB - redactor readacte 0");
+			if (ret_bpf > 0)
+				increment_redactor_count(file, ret_bpf);
+			else if (ret_bpf < 0)
+				ret = -EFAULT;
 		}
-		fsnotify_access(file);
-		add_rchar(current, ret);
+		if (ret > 0) {
+			fsnotify_access(file);
+			add_rchar(current, ret);
+		}
 	}
 	inc_syscr(current);
 	return ret;

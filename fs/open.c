@@ -5,6 +5,7 @@
  *  Copyright (C) 1991, 1992  Linus Torvalds
  */
 
+#include "asm-generic/errno-base.h"
 #include <linux/string.h>
 #include <linux/mm.h>
 #include <linux/file.h>
@@ -1504,12 +1505,29 @@ SYSCALL_DEFINE4(openat2, int, dfd, const char __user *, filename,
 
 SYSCALL_DEFINE1(count_redactions, int, fd)
 {
-	return 1;
+	struct fd f = fdget_pos(fd);
+	int ret = -EBADF;
+
+	if (f.file) {
+		/* spin_lock(&f.file->f_lock); */
+		ret = f.file->f_redacted_signs;
+		/* spin_unlock(&f.file->f_lock); */
+	}
+	
+	return ret;
 }
 
 SYSCALL_DEFINE1(reset_redactions, int, fd)
 {
-	return 2;
+	struct fd f = fdget_pos(fd);
+	int ret = -EBADF;
+
+	if (f.file) {
+		zero_redactor_count(f.file);
+		ret = 0;
+	}
+	
+	return ret;
 }
 
 #ifdef CONFIG_COMPAT

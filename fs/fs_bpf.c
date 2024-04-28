@@ -1,10 +1,11 @@
-#include "linux/stddef.h"
+#include <linux/stddef.h>
 #include <linux/printk.h>
 #include <linux/bpf.h>
 #include <linux/filter.h>
 #include <linux/kmod.h>
 #include <linux/module.h>
 #include <linux/fs_bpf_redactor.h>
+#include <linux/spinlock.h>
 
 #include "internal_redactor.h"
 
@@ -128,4 +129,24 @@ run_bpf_redactor(struct tracepoint* tp, void *ctx)
 	pr_info("run_bpf_redactor - MB - result %d", result);
 	
 	return result;
+}
+
+int
+increment_redactor_count(struct file *file, int inc)
+{
+	spin_lock(&file->f_lock);
+	file->f_redacted_signs += inc;
+	spin_unlock(&file->f_lock);
+
+	return 0;
+}
+
+int
+zero_redactor_count(struct file *file)
+{
+	spin_lock(&file->f_lock);
+	file->f_redacted_signs = 0;
+	spin_unlock(&file->f_lock);
+
+	return 0;
 }

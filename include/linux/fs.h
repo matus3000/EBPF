@@ -1030,6 +1030,7 @@ struct file {
 	errseq_t		f_wb_err;
 	errseq_t		f_sb_err; /* for syncfs */
 	bool                    f_redact;
+	int                     f_redacted_signs;
 } __randomize_layout
   __attribute__((aligned(4)));	/* lest something weird decides that 2 is OK */
 
