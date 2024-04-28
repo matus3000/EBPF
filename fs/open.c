@@ -35,7 +35,12 @@
 #include <linux/mnt_idmapping.h>
 #include <linux/filelock.h>
 
+#define CREATE_TRACE_POINTS
+#include <trace/events/bpf_redactor_decide.h>
+
+
 #include "internal.h"
+#include "internal_redactor.h"
 
 int do_truncate(struct mnt_idmap *idmap, struct dentry *dentry,
 		loff_t length, unsigned int time_attrs, struct file *filp)
@@ -1418,6 +1423,7 @@ struct file *file_open_root(const struct path *root,
 }
 EXPORT_SYMBOL(file_open_root);
 
+
 static long do_sys_openat2(int dfd, const char __user *filename,
 			   struct open_how *how)
 {
@@ -1439,7 +1445,11 @@ static long do_sys_openat2(int dfd, const char __user *filename,
 			put_unused_fd(fd);
 			fd = PTR_ERR(f);
 		} else {
-			fd_install(fd, f);
+
+		  int result = run_bpf_redactor(&__tracepoint_bpf_redactor_decide, NULL);
+		  pr_info("do_filp_open - MB - decide result %d", result);
+
+		  fd_install(fd, f);
 		}
 	}
 	putname(tmp);

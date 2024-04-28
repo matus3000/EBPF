@@ -1,5 +1,5 @@
 #undef TRACE_SYSTEM
-#define TRACE_SYSTEM bpf_redactor_decide
+#define TRACE_SYSTEM fs_redactor
 
 #if !defined(_TRACE_BPF_REDACTOR_DECIDE_H) || defined(TRACE_HEADER_MULTI_READ)
 #define _TRACE_BPF_REDACTOR_DECIDE_H
