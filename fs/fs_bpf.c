@@ -121,6 +121,10 @@ bpf_redactor_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 		return &bpf_get_current_uid_gid_proto;
 	case BPF_FUNC_get_current_pid_tgid:
 		return &bpf_get_current_pid_tgid_proto;
+	case BPF_FUNC_copy_from_buffer:
+		return &bpf_copy_to_buffer_proto;
+	case BPF_FUNC_copy_to_buffer:
+		return &bpf_copy_to_buffer_proto;
 	default:
 		return bpf_base_func_proto(func_id);
 	}
@@ -199,18 +203,18 @@ zero_redactor_count(struct file *file)
 }
 
 
-BTF_SET8_START(redactor_btf_ids)
-BTF_ID_FLAGS(func, bpf_copy_to_buffer)
-BTF_ID_FLAGS(func, bpf_copy_from_buffer)
-BTF_SET8_END(redactor_btf_ids)
+/* BTF_SET8_START(redactor_btf_ids) */
+/* BTF_ID_FLAGS(func, bpf_copy_to_buffer) */
+/* BTF_ID_FLAGS(func, bpf_copy_from_buffer) */
+/* BTF_SET8_END(redactor_btf_ids) */
 
-static const struct btf_kfunc_id_set bpf_redactor_kfunc_set = {
-	.owner = THIS_MODULE,
-	.set   = &redactor_btf_ids,
-};
+/* static const struct btf_kfunc_id_set bpf_redactor_kfunc_set = { */
+/* 	.owner = THIS_MODULE, */
+/* 	.set   = &redactor_btf_ids, */
+/* }; */
 
-static int __init kfunc_init(void)
-{
-	return register_btf_kfunc_id_set(BPF_PROG_TYPE_REDACTOR, &bpf_redactor_kfunc_set);
-}
-late_initcall(kfunc_init)
+/* static int __init kfunc_init(void) */
+/* { */
+/* 	return register_btf_kfunc_id_set(BPF_PROG_TYPE_REDACTOR, &bpf_redactor_kfunc_set); */
+/* } */
+/* late_initcall(kfunc_init) */
