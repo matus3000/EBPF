@@ -9212,6 +9212,7 @@ static bool check_raw_mode_ok(const struct bpf_func_proto *fn)
 	 * which is sufficient for the helper functions we have
 	 * right now.
 	 */
+	pr_info("Chekc_raw_mode - MB - count %d", count);
 	return count <= 1;
 }
 
@@ -9224,9 +9225,12 @@ static bool check_args_pair_invalid(const struct bpf_func_proto *fn, int arg)
 	if (arg + 1 < ARRAY_SIZE(fn->arg_type))
 		is_next_size = arg_type_is_mem_size(fn->arg_type[arg + 1]);
 
-	if (base_type(fn->arg_type[arg]) != ARG_PTR_TO_MEM)
+	if (base_type(fn->arg_type[arg]) != ARG_PTR_TO_MEM) {
+		pr_info("check_args_pair_invalid - MB - arg %d base_type - is_next_size %d", arg, is_next_size);
 		return is_next_size;
+	}
 
+	pr_info("check_args_pair_invalid - MB - arg %d base_type - is_next_size %d has_size %d  is_fixed %d ", arg, is_next_size, has_size, is_fixed);
 	return has_size == is_next_size || is_next_size == is_fixed;
 }
 
@@ -9245,6 +9249,7 @@ static bool check_arg_pair_ok(const struct bpf_func_proto *fn)
 	    check_args_pair_invalid(fn, 4))
 		return false;
 
+	pr_info("check_arg_pair_ok - MB - ok");
 	return true;
 }
 

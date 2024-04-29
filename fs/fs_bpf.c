@@ -32,17 +32,17 @@ static const struct bpf_func_proto bpf_copy_to_buffer_proto = {
 	.arg4_type = ARG_CONST_SIZE_OR_ZERO
 };
 
-BPF_CALL_1(bpf_copy_from_buffer, unsigned long, ctx)
+BPF_CALL_1(bpf_copy_from_buffer, struct redactor_ctx*, ctx)
 {
-	return ctx + 1;
+	return ctx->flags;
 }
 
 static const struct bpf_func_proto bpf_copy_from_buffer_proto = {
 	.func         = bpf_copy_from_buffer,
 	.gpl_only     = false,
 	.ret_type     = RET_INTEGER,
-	.arg1_type    = ARG_CONST_SIZE_OR_ZERO,
-	/* .arg2_type    = ARG_CONST_SIZE_OR_ZERO, */
+	.arg1_type    = ARG_PTR_TO_CTX,
+	/* .arg2_type    = ARG_ANYTHING, */
 	/* .arg3_type    = ARG_ANYTHING, */
 	/* .arg4_type    = ARG_CONST_SIZE_OR_ZERO */
 };
