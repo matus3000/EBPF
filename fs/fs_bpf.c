@@ -138,8 +138,10 @@ bpf_redactor_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 	case BPF_FUNC_get_current_pid_tgid:
 		return &bpf_get_current_pid_tgid_proto;
 	case BPF_FUNC_copy_from_buffer:
+	  pr_info("func_proto - MB - prog copy_from_buffer");
 		return &bpf_copy_from_buffer_proto;
 	case BPF_FUNC_copy_to_buffer:
+	  pr_info("func_proto - MB - prog copy_from_buffer");
 		return &bpf_copy_to_buffer_proto;
 	default:
 		return bpf_base_func_proto(func_id);
