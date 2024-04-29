@@ -32,10 +32,21 @@ static const struct bpf_func_proto bpf_copy_to_buffer_proto = {
 	.arg4_type = ARG_CONST_SIZE_OR_ZERO
 };
 
-BPF_CALL_4(bpf_copy_from_buffer, unsigned long, ctx, unsigned long, offset, void *, ptr, unsigned long, size)
+BPF_CALL_1(bpf_copy_from_buffer, unsigned long, ctx)
 {
-	return 0;
+	return ctx + 1;
 }
+
+static const struct bpf_func_proto bpf_copy_from_buffer_proto = {
+	.func         = bpf_copy_from_buffer,
+	.gpl_only     = false,
+	.ret_type     = RET_INTEGER,
+	.arg1_type    = ARG_CONST_SIZE_OR_ZERO,
+	/* .arg2_type    = ARG_CONST_SIZE_OR_ZERO, */
+	/* .arg3_type    = ARG_ANYTHING, */
+	/* .arg4_type    = ARG_CONST_SIZE_OR_ZERO */
+};
+
 
 /* BPF_CALL_4(bpf_copy_from_buffer, struct redactor_ctx*, ctx, unsigned long, offset, void *, ptr, unsigned long, size) */
 /* { */
@@ -43,15 +54,15 @@ BPF_CALL_4(bpf_copy_from_buffer, unsigned long, ctx, unsigned long, offset, void
 /* } */
 
 
-static const struct bpf_func_proto bpf_copy_from_buffer_proto = {
-	.func         = bpf_copy_from_buffer,
-	.gpl_only     = false,
-	.ret_type     = RET_INTEGER,
-	.arg1_type    = ARG_CONST_SIZE_OR_ZERO,
-	.arg2_type    = ARG_CONST_SIZE_OR_ZERO,
-	.arg3_type    = ARG_ANYTHING,
-	.arg4_type    = ARG_CONST_SIZE_OR_ZERO
-};
+/* static const struct bpf_func_proto bpf_copy_from_buffer_proto = { */
+/* 	.func         = bpf_copy_from_buffer, */
+/* 	.gpl_only     = false, */
+/* 	.ret_type     = RET_INTEGER, */
+/* 	.arg1_type    = ARG_CONST_SIZE_OR_ZERO, */
+/* 	.arg2_type    = ARG_CONST_SIZE_OR_ZERO, */
+/* 	.arg3_type    = ARG_ANYTHING, */
+/* 	.arg4_type    = ARG_CONST_SIZE_OR_ZERO */
+/* }; */
 
 
 
@@ -127,7 +138,7 @@ bpf_redactor_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 	case BPF_FUNC_get_current_pid_tgid:
 		return &bpf_get_current_pid_tgid_proto;
 	case BPF_FUNC_copy_from_buffer:
-		return &bpf_copy_to_buffer_proto;
+		return &bpf_copy_from_buffer_proto;
 	case BPF_FUNC_copy_to_buffer:
 		return &bpf_copy_to_buffer_proto;
 	default:
