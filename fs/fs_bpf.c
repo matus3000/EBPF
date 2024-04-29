@@ -11,16 +11,10 @@
 
 #include "internal_redactor.h"
 
-
-BPF_CALL_4(bpf_copy_to_buffer, unsigned long, ctx, unsigned long, offset, void *, ptr, unsigned long, size)
+BPF_CALL_4(bpf_copy_to_buffer, struct redactor_ctx*, ctx, unsigned long, offset, void *, ptr, unsigned long, size)
 {
-	return 0;
+  return copy_to_user((void __user *) (ctx->offset + offset), ptr, size);
 }
-
-/* BPF_CALL_4(bpf_copy_to_buffer, struct redactor_ctx*, ctx, unsigned long, offset, void *, ptr, unsigned long, size) */
-/* { */
-/* 	return copy_to_user((void*) ctx->offset, ptr, size); */
-/* } */
 
 static const struct bpf_func_proto bpf_copy_to_buffer_proto = {
 	.func = bpf_copy_to_buffer,
@@ -32,15 +26,10 @@ static const struct bpf_func_proto bpf_copy_to_buffer_proto = {
 	.arg4_type = ARG_CONST_SIZE_OR_ZERO
 };
 
-/* BPF_CALL_1(bpf_copy_from_buffer, struct redactor_ctx*, ctx) */
-/* { */
-/* 	return ctx->flags; */
-/* } */
 
 BPF_CALL_4(bpf_copy_from_buffer, struct redactor_ctx*, ctx, unsigned long, offset, void *, ptr, unsigned long, size)
 {
-  return 0;
-  /* return copy_from_user(ptr, (void *) (ctx->offset + offset), size); */
+  return copy_from_user(ptr, (const void __user *) (ctx->offset + offset), size);
 }
 
 static const struct bpf_func_proto bpf_copy_from_buffer_proto = {
