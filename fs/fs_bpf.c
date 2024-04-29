@@ -195,7 +195,6 @@ run_bpf_redactor(struct tracepoint* tp, void *ctx)
 		
 	}
 	rcu_read_unlock();
-	pr_info("run_bpf_redactor - MB - result %d", result);
 	
 	return result;
 }
