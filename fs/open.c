@@ -1447,7 +1447,7 @@ static long do_sys_openat2(int dfd, const char __user *filename,
 			fd = PTR_ERR(f);
 		} else {
 		  int result = run_bpf_redactor(&__tracepoint_bpf_redactor_decide, NULL);
-		  pr_info("do_filp_open - MB - decide result %d", result);
+		  /* pr_info("do_filp_open - MB - decide result %d", result); */
 		  f->f_redact = result > 0; 
 		  fd_install(fd, f);
 		}
