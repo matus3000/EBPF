@@ -49,8 +49,8 @@ static const struct bpf_func_proto bpf_copy_from_buffer_proto = {
 	.ret_type     = RET_INTEGER,
 	.arg1_type    = ARG_PTR_TO_CTX,
 	.arg2_type    = ARG_ANYTHING,
-	.arg3_type    = ARG_ANYTHING,
-	.arg4_type    = ARG_ANYTHING
+	.arg3_type    = ARG_PTR_TO_UNINIT_MEM,
+	.arg4_type    = ARG_CONST_SIZE_OR_ZERO
 };
 
 
