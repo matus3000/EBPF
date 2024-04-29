@@ -32,9 +32,15 @@ static const struct bpf_func_proto bpf_copy_to_buffer_proto = {
 	.arg4_type = ARG_CONST_SIZE_OR_ZERO
 };
 
-BPF_CALL_1(bpf_copy_from_buffer, struct redactor_ctx*, ctx)
+/* BPF_CALL_1(bpf_copy_from_buffer, struct redactor_ctx*, ctx) */
+/* { */
+/* 	return ctx->flags; */
+/* } */
+
+BPF_CALL_4(bpf_copy_from_buffer, struct redactor_ctx*, ctx, unsigned long, offset, void *, ptr, unsigned long, size)
 {
-	return ctx->flags;
+  return 0;
+  /* return copy_from_user(ptr, (void *) (ctx->offset + offset), size); */
 }
 
 static const struct bpf_func_proto bpf_copy_from_buffer_proto = {
@@ -43,8 +49,8 @@ static const struct bpf_func_proto bpf_copy_from_buffer_proto = {
 	.ret_type     = RET_INTEGER,
 	.arg1_type    = ARG_PTR_TO_CTX,
 	.arg2_type    = ARG_ANYTHING,
-	/* .arg3_type    = ARG_ANYTHING, */
-	/* .arg4_type    = ARG_CONST_SIZE_OR_ZERO */
+	.arg3_type    = ARG_ANYTHING,
+	.arg4_type    = ARG_ANYTHING
 };
 
 
