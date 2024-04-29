@@ -9258,15 +9258,25 @@ static bool check_btf_id_ok(const struct bpf_func_proto *fn)
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(fn->arg_type); i++) {
+		pr_info("check_btf_id_ok - i: %d, base_type: %d, arg_btf_id %p", i, base_type(fn->arg_type[i]), fn->arg_btf_id[i]);
 		if (base_type(fn->arg_type[i]) == ARG_PTR_TO_BTF_ID)
+		{
+			pr_info("check_btf_id_ok - MB - (base_type(fn->arg_type[i]) == ARG_PTR_TO_BTF_ID) true");
 			return !!fn->arg_btf_id[i];
+		}
 		if (base_type(fn->arg_type[i]) == ARG_PTR_TO_SPIN_LOCK)
+		{
+			pr_info("check_btf_id_ok - MB - ARG_PTR_TO_BTF_ID %p", fn->arg_btf_id[i]);
 			return fn->arg_btf_id[i] == BPF_PTR_POISON;
+		}
 		if (base_type(fn->arg_type[i]) != ARG_PTR_TO_BTF_ID && fn->arg_btf_id[i] &&
 		    /* arg_btf_id and arg_size are in a union. */
 		    (base_type(fn->arg_type[i]) != ARG_PTR_TO_MEM ||
 		     !(fn->arg_type[i] & MEM_FIXED_SIZE)))
+		{
+			pr_info("check_btf_id_ok- MB - mem_fixed_size %d", !(fn->arg_type[i] & MEM_FIXED_SIZE));
 			return false;
+		}
 	}
 
 	return true;
