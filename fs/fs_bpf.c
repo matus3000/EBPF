@@ -42,7 +42,8 @@ static const struct bpf_func_proto bpf_copy_from_buffer_proto = {
 	.arg4_type    = ARG_CONST_SIZE_OR_ZERO
 };
 
-int bpf_prog_test_run_redactor(struct bpf_prog *prog,
+static int
+bpf_prog_test_run_redactor(struct bpf_prog *prog,
 			 const union bpf_attr *kattr,
 			 union bpf_attr __user *uattr)
 {
@@ -55,7 +56,8 @@ const struct bpf_prog_ops redactor_prog_ops = {
 };
 
 
-static bool redactor_is_valid_access(int off, int size, enum bpf_access_type type,
+static bool
+redactor_is_valid_access(int off, int size, enum bpf_access_type type,
 			       const struct bpf_prog *prog,
 			       struct bpf_insn_access_aux *info)
 {
@@ -125,12 +127,14 @@ bpf_redactor_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 }
 
 
-int bpf_redactor_decide(struct redactor_ctx *x)
+int
+bpf_redactor_decide(struct redactor_ctx *x)
 {
   return 0;
 }
 
-int bpf_redactor_redact(struct redactor_ctx *prg)
+int
+bpf_redactor_redact(struct redactor_ctx *prg)
 {
   return 0;
 }
@@ -194,20 +198,3 @@ zero_redactor_count(struct file *file)
 
 	return 0;
 }
-
-
-/* BTF_SET8_START(redactor_btf_ids) */
-/* BTF_ID_FLAGS(func, bpf_copy_to_buffer) */
-/* BTF_ID_FLAGS(func, bpf_copy_from_buffer) */
-/* BTF_SET8_END(redactor_btf_ids) */
-
-/* static const struct btf_kfunc_id_set bpf_redactor_kfunc_set = { */
-/* 	.owner = THIS_MODULE, */
-/* 	.set   = &redactor_btf_ids, */
-/* }; */
-
-/* static int __init kfunc_init(void) */
-/* { */
-/* 	return register_btf_kfunc_id_set(BPF_PROG_TYPE_REDACTOR, &bpf_redactor_kfunc_set); */
-/* } */
-/* late_initcall(kfunc_init) */
