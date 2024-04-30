@@ -6,6 +6,7 @@
  */
 
 #include "asm-generic/errno-base.h"
+#include "linux/fs_bpf_redactor.h"
 #include <linux/string.h>
 #include <linux/mm.h>
 #include <linux/file.h>
@@ -1446,8 +1447,14 @@ static long do_sys_openat2(int dfd, const char __user *filename,
 			put_unused_fd(fd);
 			fd = PTR_ERR(f);
 		} else {
-		  int result = run_bpf_redactor(&__tracepoint_bpf_redactor_decide, NULL);
-		  /* pr_info("do_filp_open - MB - decide result %d", result); */
+		  struct redactor_ctx ctx = {.flags = f->f_flags,
+		    .mode = f->f_mode,
+		  };
+		  if (f->f_inode) {
+		    ctx.gid = f->f_inode->i_gid;
+		    ctx.uid = f->f_inode->i_uid;
+		  }
+		  int result = run_bpf_redactor(&__tracepoint_bpf_redactor_decide, &ctx);
 		  f->f_redact = result > 0; 
 		  fd_install(fd, f);
 		}
