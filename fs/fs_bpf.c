@@ -61,6 +61,9 @@ redactor_is_valid_access(int off, int size, enum bpf_access_type type,
 			       const struct bpf_prog *prog,
 			       struct bpf_insn_access_aux *info)
 {
+
+	pr_info("MB - redactor_is_valid_access");
+	
 	if (off < 0 || off >= sizeof(struct redactor_ctx)) {
 		pr_info("MB - redactor_is_valid_access - BPF_WRITE)");
     		return false;
@@ -79,7 +82,7 @@ redactor_is_valid_access(int off, int size, enum bpf_access_type type,
 		}
 	}
 	if (off == offsetof(struct redactor_ctx, size)) {
-		pr_info("MB - redactor_is_valid_access - size with size %d)", size);
+		pr_info("MB - redactor_is_valid_access - size with size %d", size);
 		if (size == sizeof_field(struct redactor_ctx, size)){
 			return true;
 		}
@@ -109,6 +112,7 @@ redactor_is_valid_access(int off, int size, enum bpf_access_type type,
 		}
 	}
 
+	pr_info("MB - redactor_is_valid_access - false");
 	return false;
 }
 
