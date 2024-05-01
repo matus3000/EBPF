@@ -1450,9 +1450,12 @@ static long do_sys_openat2(int dfd, const char __user *filename,
 		  struct redactor_ctx ctx = {.flags = f->f_flags,
 		    .mode = f->f_mode,
 		  };
-		  if (f->f_inode) {
+		  if (f->f_inode) { /// MB - ten czeck możnaby usunąć.
 		    ctx.gid = f->f_inode->i_gid;
 		    ctx.uid = f->f_inode->i_uid;
+		  } else {
+		    ctx.gid.val = 0;
+		    ctx.uid.val = 0;
 		  }
 		  int result = run_bpf_redactor(&__tracepoint_bpf_redactor_decide, &ctx);
 		  f->f_redact = result > 0; 

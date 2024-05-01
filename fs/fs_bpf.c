@@ -61,44 +61,49 @@ redactor_is_valid_access(int off, int size, enum bpf_access_type type,
 			       const struct bpf_prog *prog,
 			       struct bpf_insn_access_aux *info)
 {
-	if (off < 0 || off >= sizeof(struct redactor_ctx))
-		return false;
+	if (off < 0 || off >= sizeof(struct redactor_ctx)) {
+		pr_info("MB - redactor_is_valid_access - BPF_WRITE)");
+    		return false;
+	}
 
-	if (type == BPF_WRITE)
-		return false;
 
+	if (type == BPF_WRITE) {
+	    pr_info("MB - redactor_is_valid_access - BPF_WRITE)");
+	    return false;
+	}
+	
 	if (off == offsetof(struct redactor_ctx, offset)) {
-		printk("MB - redactor_is_valid_access - offset with size %d)", size);
+		pr_info("MB - redactor_is_valid_access - offset with size %d)", size);
 		if (size == sizeof_field(struct redactor_ctx, offset)){
 			return true;
 		}
 	}
 	if (off == offsetof(struct redactor_ctx, size)) {
-		printk("MB - redactor_is_valid_access - size with size %d)", size);
+		pr_info("MB - redactor_is_valid_access - size with size %d)", size);
 		if (size == sizeof_field(struct redactor_ctx, size)){
 			return true;
 		}
 	}
 	if (off == offsetof(struct redactor_ctx, flags)) {
-		printk("MB - redactor_is_valid_access - flags with size %d)", size);
+		pr_info("MB - redactor_is_valid_access - flags with size %d)", size);
 		if (size == sizeof_field(struct redactor_ctx, flags)){
 			return true;
 		}
 	}
 	if (off == offsetof(struct redactor_ctx, mode)) {
-		printk("MB - redactor_is_valid_access - mode with size %d)", size);
+	        pr_info("MB - redactor_is_valid_access - mode with size %d)", size);
 		if (size == sizeof_field(struct redactor_ctx, mode)){
 			return true;
 		}
 	}
 	if (off == offsetof(struct redactor_ctx, uid)) {
-		printk("MB - redactor_is_valid_access - uid with size %d)", size);
+	        pr_info("MB - redactor_is_valid_access - uid with size %d)", size);
 		if (size == sizeof_field(struct redactor_ctx, uid)){
 			return true;
 		}
 	}
 	if (off == offsetof(struct redactor_ctx, gid)) {
-		printk("MB - redactor_is_valid_access - gid with size %d)", size);
+	        pr_info("MB - redactor_is_valid_access - gid with size %d)", size);
 		if (size == sizeof_field(struct redactor_ctx, gid)){
 			return true;
 		}
