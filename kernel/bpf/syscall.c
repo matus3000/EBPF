@@ -3739,11 +3739,13 @@ static int bpf_raw_tp_link_attach(struct bpf_prog *prog,
 	err = bpf_probe_register(link->btp, prog);
 	pr_info("bpf_raw_tp_link_attach - MB - bpf_probe_register");
 	if (err) {
-		pr_info("bpf_raw_tp_link_attach - MB - bpf_get_raw_tracepoint fail");
+		pr_err("bpf_raw_tp_link_attach - MB - bpf_get_raw_tracepoint fail");
 		bpf_link_cleanup(&link_primer);
 		goto out_put_btp;
+	} else {
+		pr_err("bpf_raw_tp_link_attach - MB - bpf_probe_register success");
 	}
-	pr_info("bpf_raw_tp_link_attach - MB - bpf_probe_register success");
+	
 	
 	return bpf_link_settle(&link_primer);
 
@@ -3759,16 +3761,25 @@ static int bpf_raw_tracepoint_open(const union bpf_attr *attr)
 	struct bpf_prog *prog;
 	int fd;
 
-	if (CHECK_ATTR(BPF_RAW_TRACEPOINT_OPEN))
+	if (CHECK_ATTR(BPF_RAW_TRACEPOINT_OPEN)) {
+		pr_info("bpf_raw_tracepoint_open - MB - check_attr - failed");
 		return -EINVAL;
+	}
+	
 
 	prog = bpf_prog_get(attr->raw_tracepoint.prog_fd);
-	if (IS_ERR(prog))
+	if (IS_ERR(prog)){
+		pr_info("bpf_raw_tracepoint_open - MB - prog get - failed");
 		return PTR_ERR(prog);
-
+	}
+	
+	pr_info("bpf_raw_tracepoint_open - MB - successful prog get");
 	fd = bpf_raw_tp_link_attach(prog, u64_to_user_ptr(attr->raw_tracepoint.name));
-	if (fd < 0)
+	if (fd < 0) {
+		pr_err(" bpf_raw_tracepoint_open - MB - bpf_raw_tp_link_attach - failed %d", fd);
 		bpf_prog_put(prog);
+	}
+	
 	return fd;
 }
 
