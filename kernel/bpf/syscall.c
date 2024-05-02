@@ -2780,15 +2780,17 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 	err = bpf_check(&prog, attr, uattr, uattr_size);
 	if (err < 0)
 		goto free_used_maps;
-	pr_info("bpf_prog_load - MB - bpf_check - end");
+	pr_info("bpf_prog_load - MB - bpf_check - end - err: %d", err);
 	
 	prog = bpf_prog_select_runtime(prog, &err);
 	if (err < 0)
 		goto free_used_maps;
+	pr_info("bpf_prog_load - MB - bpf_prog_select_runtime - end - err: %d", err);
 
 	err = bpf_prog_alloc_id(prog);
 	if (err)
 		goto free_used_maps;
+	pr_info("bpf_prog_load - MB - bpf_prog_alloc_id - end - err: %d", err);
 
 	/* Upon success of bpf_prog_alloc_id(), the BPF prog is
 	 * effectively publicly exposed. However, retrieving via
@@ -2811,6 +2813,7 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 	err = bpf_prog_new_fd(prog);
 	if (err < 0)
 		bpf_prog_put(prog);
+	pr_info("bpf_prog_load - MB - bpf_prog_new_fd - end - err: %d", err);
 	return err;
 
 free_used_maps:

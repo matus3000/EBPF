@@ -101,7 +101,7 @@ redactor_is_valid_access(int off, int size, enum bpf_access_type type,
 	}
 	if (off == offsetof(struct redactor_ctx, uid)) {
 	        pr_info("MB - redactor_is_valid_access - uid with size %d)", size);
-		if (size == sizeof_field(struct redactor_ctx, uid)){
+		if (size <= sizeof_field(struct redactor_ctx, uid)){
 			return true;
 		}
 	}
