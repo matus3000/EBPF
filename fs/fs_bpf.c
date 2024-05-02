@@ -1,6 +1,3 @@
-#include "linux/bpf.h"
-#include "linux/container_of.h"
-#include "linux/init.h"
 #include <linux/stddef.h>
 #include <linux/printk.h>
 #include <linux/bpf.h>
