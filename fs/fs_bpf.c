@@ -99,11 +99,20 @@ redactor_is_valid_access(int off, int size, enum bpf_access_type type,
 			return true;
 		}
 	}
+	
 	if (off == offsetof(struct redactor_ctx, uid)) {
 	        pr_info("MB - redactor_is_valid_access - uid with size %d)", size);
 		if (size <= sizeof_field(struct redactor_ctx, uid)){
 			return true;
 		}
+	}
+	int struct_offset = offsetof(struct redactor_ctx, uid);
+	if (off == struct_offset + offsetof(kuid_t, val)) {
+		if (size <= sizeof_field(kuid_t, val)){
+			pr_info("MB - redactor_is_valid_access - uid.val with) - ok");
+			return true;
+		}
+		pr_info("MB - redactor_is_valid_access - uid.val with) - not ok");
 	}
 	if (off == offsetof(struct redactor_ctx, gid)) {
 	        pr_info("MB - redactor_is_valid_access - gid with size %d)", size);
