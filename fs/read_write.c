@@ -497,10 +497,11 @@ ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
 		ret = -EINVAL;
 	
 	if (ret > 0) {
+		int bpf_ret = 0;
 		if (file->f_redact) {
-			ret = do_bpf_redactor(file, buf);
+			bpf_ret = do_bpf_redactor(file, buf);
 		}
-		if (ret > 0) {
+		if (bpf_ret >= 0) {
 			fsnotify_access(file);
 			add_rchar(current, ret);
 		}
