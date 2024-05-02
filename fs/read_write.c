@@ -454,11 +454,27 @@ ssize_t kernel_read(struct file *file, void *buf, size_t count, loff_t *pos)
 }
 EXPORT_SYMBOL(kernel_read);
 
+static int do_bpf_redactor(struct file *file, char __user *buf)
+{
+	int ret = 0;
+	struct internal_ctx ctx = {
+		.ctx.offset = (loff_t) file->f_pos,
+		.ctx.size = ret,
+		.buf = buf
+	};
+	int ret_bpf = run_bpf_redactor(&__tracepoint_bpf_redactor_redact, &ctx.ctx);
+	if (ret_bpf > 0)
+		increment_redactor_count(file, ret_bpf);
+	else if (ret_bpf < 0)
+		ret = -EFAULT;
+
+	return ret;
+}
+
 ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
 {
 	// MB - vfs_read
 	ssize_t ret;
-	int ret_bpf;
 
 	if (!(file->f_mode & FMODE_READ))
 		return -EBADF;
@@ -482,12 +498,7 @@ ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
 	
 	if (ret > 0) {
 		if (file->f_redact) {
-			struct redactor_ctx ctx = {.offset = (loff_t) buf, .size = ret};
-			ret_bpf = run_bpf_redactor(&__tracepoint_bpf_redactor_redact, &ctx);
-			if (ret_bpf > 0)
-				increment_redactor_count(file, ret_bpf);
-			else if (ret_bpf < 0)
-				ret = -EFAULT;
+			ret = do_bpf_redactor(file, buf);
 		}
 		if (ret > 0) {
 			fsnotify_access(file);

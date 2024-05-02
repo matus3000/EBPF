@@ -1,4 +1,5 @@
 #include "linux/bpf.h"
+#include "linux/container_of.h"
 #include "linux/init.h"
 #include <linux/stddef.h>
 #include <linux/printk.h>
@@ -13,7 +14,8 @@
 
 BPF_CALL_4(bpf_copy_to_buffer, struct redactor_ctx*, ctx, unsigned long, offset, void *, ptr, unsigned long, size)
 {
-  return copy_to_user((void __user *) (ctx->offset + offset), ptr, size);
+	struct internal_ctx* internal_ctx = container_of(ctx, struct internal_ctx, ctx);
+	return copy_to_user((void __user *) (internal_ctx->buf + offset), ptr, size);
 }
 
 static const struct bpf_func_proto bpf_copy_to_buffer_proto = {
@@ -29,7 +31,8 @@ static const struct bpf_func_proto bpf_copy_to_buffer_proto = {
 
 BPF_CALL_4(bpf_copy_from_buffer, struct redactor_ctx*, ctx, unsigned long, offset, void *, ptr, unsigned long, size)
 {
-  return copy_from_user(ptr, (const void __user *) (ctx->offset + offset), size);
+		struct internal_ctx* internal_ctx = container_of(ctx, struct internal_ctx, ctx);
+		return copy_from_user(ptr, (const void __user *) (internal_ctx->buf + offset), size);
 }
 
 static const struct bpf_func_proto bpf_copy_from_buffer_proto = {

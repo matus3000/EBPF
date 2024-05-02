@@ -1426,6 +1426,24 @@ struct file *file_open_root(const struct path *root,
 EXPORT_SYMBOL(file_open_root);
 
 
+static int do_redactor_decide(struct file *f)
+{
+	struct internal_ctx ctx = {
+		.ctx.flags = f->f_flags,
+		.ctx.mode = f->f_mode,
+		.buf = NULL
+	};
+	if (f->f_inode) { /// MB - ten czeck możnaby usunąć.
+		ctx.ctx.gid = f->f_inode->i_gid;
+		ctx.ctx.uid = f->f_inode->i_uid;
+	} else {
+		ctx.ctx.gid.val = 0;
+		ctx.ctx.uid.val = 0;
+	}
+	return run_bpf_redactor(&__tracepoint_bpf_redactor_decide, &ctx.ctx);
+
+}
+
 static long do_sys_openat2(int dfd, const char __user *filename,
 			   struct open_how *how)
 {
@@ -1447,19 +1465,9 @@ static long do_sys_openat2(int dfd, const char __user *filename,
 			put_unused_fd(fd);
 			fd = PTR_ERR(f);
 		} else {
-		  struct redactor_ctx ctx = {.flags = f->f_flags,
-		    .mode = f->f_mode,
-		  };
-		  if (f->f_inode) { /// MB - ten czeck możnaby usunąć.
-		    ctx.gid = f->f_inode->i_gid;
-		    ctx.uid = f->f_inode->i_uid;
-		  } else {
-		    ctx.gid.val = 0;
-		    ctx.uid.val = 0;
-		  }
-		  int result = run_bpf_redactor(&__tracepoint_bpf_redactor_decide, &ctx);
-		  f->f_redact = result > 0; 
-		  fd_install(fd, f);
+			int result = do_redactor_decide(f);
+			f->f_redact = result > 0; 
+			fd_install(fd, f);
 		}
 	}
 	putname(tmp);
