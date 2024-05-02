@@ -2381,26 +2381,24 @@ static int __bpf_probe_register(struct bpf_raw_event_map *btp, struct bpf_prog *
 {
 	struct tracepoint *tp = btp->tp;
 
-	/*
-	 * check that program doesn't access arguments beyond what's
-	 * available in this tracepoint
-	 */
-	if (prog->aux->max_ctx_offset > btp->num_args * sizeof(u64))
-	{
-		if (prog->type != BPF_PROG_TYPE_REDACTOR) {
+
+	if (prog->type != BPF_PROG_TYPE_REDACTOR) {
+		/*
+		 * check that program doesn't access arguments beyond what's
+		 * available in this tracepoint
+		 */
+		if (prog->aux->max_ctx_offset > btp->num_args * sizeof(u64))
+		{
 			return -EINVAL;
 		}
-		
-	}
 	
 
-	if (prog->aux->max_tp_access > btp->writable_size)
-	{
-		if (prog->type != BPF_PROG_TYPE_REDACTOR) {
+		if (prog->aux->max_tp_access > btp->writable_size)
+		{
 			return -EINVAL;
 		}
 	}
-	
+		
 
 	return tracepoint_probe_register_may_exist(tp, (void *)btp->bpf_func,
 						   prog);
