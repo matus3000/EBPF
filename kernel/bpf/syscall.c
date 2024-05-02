@@ -2299,8 +2299,11 @@ int bpf_prog_new_fd(struct bpf_prog *prog)
 	int ret;
 
 	ret = security_bpf_prog(prog);
-	if (ret < 0)
+	if (ret < 0) {
+		pr_info("bpf_prog_new_fd - MB - security_bpf_prog - ret: %d", ret);
 		return ret;
+	}
+	
 
 	return anon_inode_getfd("bpf-prog", &bpf_prog_fops, prog,
 				O_RDWR | O_CLOEXEC);
