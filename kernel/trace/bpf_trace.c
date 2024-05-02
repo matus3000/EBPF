@@ -2388,8 +2388,6 @@ static int __bpf_probe_register(struct bpf_raw_event_map *btp, struct bpf_prog *
 	if (prog->aux->max_ctx_offset > btp->num_args * sizeof(u64))
 	{
 		if (prog->type != BPF_PROG_TYPE_REDACTOR) {
-			pr_err("__bpf_probe_register - MB - prog->aux->max_ctx_offset > btp->num_args * sizeof(u64), %d > %ld",
-		       prog->aux->max_ctx_offset , btp->num_args * sizeof(u64));
 			return -EINVAL;
 		}
 		
@@ -2398,9 +2396,9 @@ static int __bpf_probe_register(struct bpf_raw_event_map *btp, struct bpf_prog *
 
 	if (prog->aux->max_tp_access > btp->writable_size)
 	{
-		pr_err("__bpf_probe_register - MB - prog->aux->max_tp_access > btp->writable_size, %d > %d",
-		       prog->aux->max_tp_access , btp->writable_size);
-		return -EINVAL;
+		if (prog->type != BPF_PROG_TYPE_REDACTOR) {
+			return -EINVAL;
+		}
 	}
 	
 
