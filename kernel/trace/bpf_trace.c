@@ -3,6 +3,7 @@
  * Copyright (c) 2016 Facebook
  */
 
+#include "linux/printk.h"
 #include <linux/kernel.h>
 #include <linux/types.h>
 #include <linux/slab.h>
@@ -2385,10 +2386,20 @@ static int __bpf_probe_register(struct bpf_raw_event_map *btp, struct bpf_prog *
 	 * available in this tracepoint
 	 */
 	if (prog->aux->max_ctx_offset > btp->num_args * sizeof(u64))
+	{
+		pr_err("__bpf_probe_register - MB - prog->aux->max_ctx_offset > btp->num_args * sizeof(u64), %d > %ld",
+		       prog->aux->max_ctx_offset , btp->num_args * sizeof(u64));
 		return -EINVAL;
+	}
+	
 
 	if (prog->aux->max_tp_access > btp->writable_size)
+	{
+		pr_err("__bpf_probe_register - MB - prog->aux->max_tp_access > btp->writable_size, %d > %d",
+		       prog->aux->max_tp_access , btp->writable_size);
 		return -EINVAL;
+	}
+	
 
 	return tracepoint_probe_register_may_exist(tp, (void *)btp->bpf_func,
 						   prog);
