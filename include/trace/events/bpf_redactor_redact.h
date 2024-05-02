@@ -7,8 +7,8 @@
 #define _TRACE_BPF_REDACTOR_REDACT_H
 
 #include <linux/tracepoint.h>
+#include <linux/fs_bpf_redactor.h>
 
-struct redactor_ctx;
 
 TRACE_EVENT(bpf_redactor_redact,
 	    TP_PROTO(const struct redactor_ctx *ctx),
