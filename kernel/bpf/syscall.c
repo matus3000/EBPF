@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /* Copyright (c) 2011-2014 PLUMgrid, http://plumgrid.com
  */
-#include "linux/bpf.h"
-#include "linux/errno.h"
-#include "linux/printk.h"
 #include <linux/bpf.h>
 #include <linux/bpf-cgroup.h>
 #include <linux/bpf_trace.h>
@@ -3633,6 +3630,13 @@ static int bpf_perf_link_attach(const union bpf_attr *attr, struct bpf_prog *pro
 }
 #endif /* CONFIG_PERF_EVENTS */
 
+static bool bpf_redactor_check_function_name(const char* name)
+{
+	const char decide[] = "bpf_redactor_decide";
+	const char redact[] = "bpf_redactor_redact";
+	return name && (strncmp(decide, name, sizeof(decide)) == 0 || strncmp(decide, name, sizeof(redact)));
+}
+
 static int bpf_raw_tp_link_attach(struct bpf_prog *prog,
 				  const char __user *user_tp_name)
 {
@@ -3673,7 +3677,14 @@ static int bpf_raw_tp_link_attach(struct bpf_prog *prog,
 			return -EINVAL;
 		if (prog->type == BPF_PROG_TYPE_REDACTOR &&
 		    prog->expected_attach_type == BPF_REDACTOR)
+		{
 			tp_name = prog->aux->attach_func_name;
+			if (!bpf_redactor_check_function_name(tp_name))
+			{
+				return EINVAL;
+			}
+		}
+
 		break;
 	default:
 		return -EINVAL;
