@@ -3803,12 +3803,6 @@ static struct file *path_openat(struct nameidata *nd,
 	return ERR_PTR(error);
 }
 
-/* static int run_bpf_redactor_decide(void * ctx) */
-/* { */
-	
-/* 	return 0; */
-/* } */
-
 struct file *do_filp_open(int dfd, struct filename *pathname,
 		const struct open_flags *op)
 {
@@ -3822,11 +3816,6 @@ struct file *do_filp_open(int dfd, struct filename *pathname,
 		filp = path_openat(&nd, op, flags);
 	if (unlikely(filp == ERR_PTR(-ESTALE)))
 		filp = path_openat(&nd, op, flags | LOOKUP_REVAL);
-
-	/* // HERE insert bpf_redactor_decide - MB - */
-	/* int result = run_bpf_redactor_decide(NULL); */
-	/* pr_info("do_filp_open - MB - decide result %d", result); */
-	/* // */
 
 	restore_nameidata();
 	return filp;

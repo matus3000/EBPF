@@ -2,6 +2,7 @@
 /*
  * Copyright (C) 2008-2014 Mathieu Desnoyers
  */
+#include "linux/tracepoint-defs.h"
 #include <linux/module.h>
 #include <linux/mutex.h>
 #include <linux/types.h>

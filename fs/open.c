@@ -5,8 +5,6 @@
  *  Copyright (C) 1991, 1992  Linus Torvalds
  */
 
-#include "asm-generic/errno-base.h"
-#include "linux/fs_bpf_redactor.h"
 #include <linux/string.h>
 #include <linux/mm.h>
 #include <linux/file.h>
@@ -39,6 +37,8 @@
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/bpf_redactor_decide.h>
+
+#include <linux/fs_bpf_redactor.h>
 
 
 #include "internal.h"
@@ -1433,7 +1433,7 @@ static int do_redactor_decide(struct file *f)
 		.ctx.mode = f->f_mode,
 		.buf = NULL
 	};
-	if (f->f_inode) { /// MB - ten czeck możnaby usunąć.
+	if (f->f_inode) {
 		ctx.ctx.gid = f->f_inode->i_gid;
 		ctx.ctx.uid = f->f_inode->i_uid;
 	} else {

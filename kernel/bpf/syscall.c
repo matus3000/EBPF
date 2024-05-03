@@ -2299,12 +2299,9 @@ int bpf_prog_new_fd(struct bpf_prog *prog)
 	int ret;
 
 	ret = security_bpf_prog(prog);
-	if (ret < 0) {
-		pr_info("bpf_prog_new_fd - MB - security_bpf_prog - ret: %d", ret);
+	if (ret < 0) 
 		return ret;
-	}
 	
-
 	return anon_inode_getfd("bpf-prog", &bpf_prog_fops, prog,
 				O_RDWR | O_CLOEXEC);
 }
@@ -2454,9 +2451,7 @@ bpf_prog_load_check_attach(enum bpf_prog_type prog_type,
 		case BPF_PROG_TYPE_LSM:
 		case BPF_PROG_TYPE_STRUCT_OPS:
 		case BPF_PROG_TYPE_EXT:
-			break;
 		case BPF_PROG_TYPE_REDACTOR:
-			pr_info("bpf_prog_load_check_attach - MB - redactor - btf_id - %d", btf_id);
 			break;
 		default:
 			return -EINVAL;
@@ -2542,10 +2537,8 @@ bpf_prog_load_check_attach(enum bpf_prog_type prog_type,
 			return -EINVAL;
 		fallthrough;
 	case BPF_PROG_TYPE_REDACTOR:
-		if (expected_attach_type == BPF_REDACTOR) {
-			pr_info("MB - bpf_prog_load_check_attach - BPF_PROG_TYPE_REDACTOR - BPF_REDACTOR");
+		if (expected_attach_type == BPF_REDACTOR)
 			return 0;
-		}
 		return -EINVAL;
 	default:
 		return 0;
@@ -2611,13 +2604,9 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 	struct btf *attach_btf = NULL;
 	int err;
 	char license[128];
-	pr_info("bpf_prog_load - MB - switch(cmd)");
+
 	if (CHECK_ATTR(BPF_PROG_LOAD))
-	{
-		pr_info("bpf_prog_load - MB - CHECK_ATTR - failed");
 		return -EINVAL;
-	}
-	
 
 	if (attr->prog_flags & ~(BPF_F_STRICT_ALIGNMENT |
 				 BPF_F_ANY_ALIGNMENT |
@@ -2626,10 +2615,7 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 				 BPF_F_TEST_RND_HI32 |
 				 BPF_F_XDP_HAS_FRAGS |
 				 BPF_F_XDP_DEV_BOUND_ONLY))
-	{
-		pr_info("bpf_prog_load - MB - attr->prog_flags check - failed");
 		return -EINVAL;
-	}
 
 
 	if (!IS_ENABLED(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) &&
@@ -2660,8 +2646,6 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 	if (is_perfmon_prog_type(type) && !perfmon_capable())
 		return -EPERM;
 
-	pr_info("bpf_prog_load - MB - attr->attach_prog_fd if - before");
-
 
 	/* attach_prog_fd/attach_btf_obj_fd can specify fd of either bpf_prog
 	 * or btf, we need to check which one it is
@@ -2690,14 +2674,12 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 			return -EINVAL;
 		btf_get(attach_btf);
 	}
-	pr_info("bpf_prog_load - MB - attr->attach_prog_fd if - end");
 	
 	
 	bpf_prog_load_fixup_attach_type(attr);
 	if (bpf_prog_load_check_attach(type, attr->expected_attach_type,
 				       attach_btf, attr->attach_btf_id,
 				       dst_prog)) {
-		pr_info("bpf_prog_load - MB - bpf_prog_load_check_attach - fail - for type %d", type);
 		if (dst_prog)
 			bpf_prog_put(dst_prog);
 		if (attach_btf)
@@ -2709,7 +2691,6 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 	/* plain bpf_prog allocation */
 	prog = bpf_prog_alloc(bpf_prog_size(attr->insn_cnt), GFP_USER);
 	if (!prog) {
-		pr_info("bpf_prog_load - MB - bpf_prog_alloc - fail - for type %d", type);
 		if (dst_prog)
 			bpf_prog_put(dst_prog);
 		if (attach_btf)
@@ -2725,11 +2706,9 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 	prog->aux->sleepable = attr->prog_flags & BPF_F_SLEEPABLE;
 	prog->aux->xdp_has_frags = attr->prog_flags & BPF_F_XDP_HAS_FRAGS;
 
-	pr_info("bpf_prog_load - MB - security_bpf_prog_alloc - start");
 	err = security_bpf_prog_alloc(prog->aux);
 	if (err)
 		goto free_prog;
-	pr_info("bpf_prog_load - MB - security_bpf_prog_alloc - end");
 
 	prog->aux->user = get_current_user();
 	prog->len = attr->insn_cnt;
@@ -2778,22 +2757,18 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 	if (err < 0)
 		goto free_prog_sec;
 
-	pr_info("bpf_prog_load - MB - bpf_check - start");
 	/* run eBPF verifier */
 	err = bpf_check(&prog, attr, uattr, uattr_size);
 	if (err < 0)
 		goto free_used_maps;
-	pr_info("bpf_prog_load - MB - bpf_check - end - err: %d", err);
 	
 	prog = bpf_prog_select_runtime(prog, &err);
 	if (err < 0)
 		goto free_used_maps;
-	pr_info("bpf_prog_load - MB - bpf_prog_select_runtime - end - err: %d", err);
 
 	err = bpf_prog_alloc_id(prog);
 	if (err)
 		goto free_used_maps;
-	pr_info("bpf_prog_load - MB - bpf_prog_alloc_id - end - err: %d", err);
 
 	/* Upon success of bpf_prog_alloc_id(), the BPF prog is
 	 * effectively publicly exposed. However, retrieving via
@@ -2816,7 +2791,7 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr, u32 uattr_size)
 	err = bpf_prog_new_fd(prog);
 	if (err < 0)
 		bpf_prog_put(prog);
-	pr_info("bpf_prog_load - MB - bpf_prog_new_fd - end - err: %d", err);
+
 	return err;
 
 free_used_maps:
@@ -3692,19 +3667,13 @@ static int bpf_raw_tp_link_attach(struct bpf_prog *prog,
 		break;
 	case BPF_PROG_TYPE_REDACTOR:
 		if (user_tp_name)
-		{
 			/* The attach point for this category of programs
 			 * should be specified via btf_id during program load.
 			 */
-			pr_info("bpf_raw_tp_link_attach - MB -  user_tp_name != null - %s", user_tp_name);
 			return -EINVAL;
-		}
 		if (prog->type == BPF_PROG_TYPE_REDACTOR &&
 		    prog->expected_attach_type == BPF_REDACTOR)
-		{
 			tp_name = prog->aux->attach_func_name;
-			pr_info ("bpf_raw_tp_link_attach - MB - tp_name := %s", tp_name);
-		}
 		break;
 	default:
 		return -EINVAL;
@@ -3712,12 +3681,8 @@ static int bpf_raw_tp_link_attach(struct bpf_prog *prog,
 
 
 	btp = bpf_get_raw_tracepoint(tp_name);
-	pr_info("bpf_raw_tp_link_attach - MB - before if");
-	if (!btp) {
-		pr_info("bpf_raw_tp_link_attach - MB - bpf_get_raw_tracepoint fail");
+	if (!btp)
 		return -ENOENT;
-	}
-	pr_info("bpf_raw_tp_link_attach - MB - bpf_get_raw_tracepoint success");
 
 	link = kzalloc(sizeof(*link), GFP_USER);
 	if (!link) {
@@ -3730,22 +3695,15 @@ static int bpf_raw_tp_link_attach(struct bpf_prog *prog,
 
 	err = bpf_link_prime(&link->link, &link_primer);
 	if (err) {
-		pr_info("bpf_raw_tp_link_attach - MB - bpf_link_prime fail");
 		kfree(link);
 		goto out_put_btp;
 	}
-	pr_info("bpf_raw_tp_link_attach - MB - bpf_link_prime success");
 	
 	err = bpf_probe_register(link->btp, prog);
-	pr_info("bpf_raw_tp_link_attach - MB - bpf_probe_register");
 	if (err) {
-		pr_err("bpf_raw_tp_link_attach - MB - bpf_get_raw_tracepoint fail");
 		bpf_link_cleanup(&link_primer);
 		goto out_put_btp;
-	} else {
-		pr_err("bpf_raw_tp_link_attach - MB - bpf_probe_register success");
 	}
-	
 	
 	return bpf_link_settle(&link_primer);
 
@@ -3761,24 +3719,18 @@ static int bpf_raw_tracepoint_open(const union bpf_attr *attr)
 	struct bpf_prog *prog;
 	int fd;
 
-	if (CHECK_ATTR(BPF_RAW_TRACEPOINT_OPEN)) {
-		pr_info("bpf_raw_tracepoint_open - MB - check_attr - failed");
+	if (CHECK_ATTR(BPF_RAW_TRACEPOINT_OPEN))
 		return -EINVAL;
-	}
 	
 
 	prog = bpf_prog_get(attr->raw_tracepoint.prog_fd);
-	if (IS_ERR(prog)){
-		pr_info("bpf_raw_tracepoint_open - MB - prog get - failed");
+	if (IS_ERR(prog))
 		return PTR_ERR(prog);
-	}
 	
-	pr_info("bpf_raw_tracepoint_open - MB - successful prog get");
+
 	fd = bpf_raw_tp_link_attach(prog, u64_to_user_ptr(attr->raw_tracepoint.name));
-	if (fd < 0) {
-		pr_err(" bpf_raw_tracepoint_open - MB - bpf_raw_tp_link_attach - failed %d", fd);
+	if (fd < 0)
 		bpf_prog_put(prog);
-	}
 	
 	return fd;
 }
@@ -5471,7 +5423,6 @@ out_prog_put:
 
 static int __sys_bpf(int cmd, bpfptr_t uattr, unsigned int size)
 {
-	pr_info("__sys_bpf - MB - calling of __sys_bpf");
 	union bpf_attr attr;
 	int err;
 
@@ -5483,19 +5434,13 @@ static int __sys_bpf(int cmd, bpfptr_t uattr, unsigned int size)
 	/* copy attributes from user space, may be less than sizeof(bpf_attr) */
 	memset(&attr, 0, sizeof(attr));
 	if (copy_from_bpfptr(&attr, uattr, size) != 0)
-	{
-		pr_info("__sys_bpf - MB - copy_from_bpfptr fail");
 		return -EFAULT;
-	}
 	
 
 	err = security_bpf(cmd, &attr, size);
 	if (err < 0)
-		{pr_info("__sys_bpf - MB - security_bpf fail"); return err;}
+		return err;
 	
-	pr_info("__sys_bpf - MB - security_bpf success");
-	pr_info("__sys_bpf - MB - switch(cmd)");
-
 	switch (cmd) {
 	case BPF_MAP_CREATE:
 		err = map_create(&attr);

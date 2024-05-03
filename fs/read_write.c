@@ -473,7 +473,6 @@ static int do_bpf_redactor(struct file *file, char __user *buf)
 
 ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
 {
-	// MB - vfs_read
 	ssize_t ret;
 
 	if (!(file->f_mode & FMODE_READ))

@@ -61,67 +61,48 @@ redactor_is_valid_access(int off, int size, enum bpf_access_type type,
 			       const struct bpf_prog *prog,
 			       struct bpf_insn_access_aux *info)
 {
-
-	pr_info("MB - redactor_is_valid_access");
 	
 	if (off < 0 || off >= sizeof(struct redactor_ctx)) {
-		pr_info("MB - redactor_is_valid_access - BPF_WRITE)");
     		return false;
 	}
 
 
 	if (type == BPF_WRITE) {
-	    pr_info("MB - redactor_is_valid_access - BPF_WRITE)");
 	    return false;
 	}
 	
 	if (off == offsetof(struct redactor_ctx, offset)) {
-		pr_info("MB - redactor_is_valid_access - offset with size %d)", size);
-		if (size == sizeof_field(struct redactor_ctx, offset)){
+		if (size <= sizeof_field(struct redactor_ctx, offset)){
 			return true;
 		}
 	}
 	if (off == offsetof(struct redactor_ctx, size)) {
-		pr_info("MB - redactor_is_valid_access - size with size %d", size);
-		if (size == sizeof_field(struct redactor_ctx, size)){
+		if (size <= sizeof_field(struct redactor_ctx, size)){
 			return true;
 		}
 	}
 	if (off == offsetof(struct redactor_ctx, flags)) {
-		pr_info("MB - redactor_is_valid_access - flags with size %d)", size);
-		if (size == sizeof_field(struct redactor_ctx, flags)){
+		if (size <= sizeof_field(struct redactor_ctx, flags)){
 			return true;
 		}
 	}
 	if (off == offsetof(struct redactor_ctx, mode)) {
-	        pr_info("MB - redactor_is_valid_access - mode with size %d)", size);
-		if (size == sizeof_field(struct redactor_ctx, mode)){
+		if (size <= sizeof_field(struct redactor_ctx, mode)){
 			return true;
 		}
 	}
 	
 	if (off == offsetof(struct redactor_ctx, uid)) {
-	        pr_info("MB - redactor_is_valid_access - uid with size %d)", size);
 		if (size <= sizeof_field(struct redactor_ctx, uid)){
 			return true;
 		}
 	}
-	int struct_offset = offsetof(struct redactor_ctx, uid);
-	if (off == struct_offset + offsetof(kuid_t, val)) {
-		if (size <= sizeof_field(kuid_t, val)){
-			pr_info("MB - redactor_is_valid_access - uid.val with) - ok");
-			return true;
-		}
-		pr_info("MB - redactor_is_valid_access - uid.val with) - not ok");
-	}
 	if (off == offsetof(struct redactor_ctx, gid)) {
-	        pr_info("MB - redactor_is_valid_access - gid with size %d)", size);
-		if (size == sizeof_field(struct redactor_ctx, gid)){
+		if (size <= sizeof_field(struct redactor_ctx, gid)){
 			return true;
 		}
 	}
 
-	pr_info("MB - redactor_is_valid_access - false");
 	return false;
 }
 
@@ -134,10 +115,8 @@ bpf_redactor_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 	case BPF_FUNC_get_current_pid_tgid:
 		return &bpf_get_current_pid_tgid_proto;
 	case BPF_FUNC_copy_from_buffer:
-	  pr_info("func_proto - MB - prog copy_from_buffer");
 		return &bpf_copy_from_buffer_proto;
 	case BPF_FUNC_copy_to_buffer:
-	  pr_info("func_proto - MB - prog copy_from_buffer");
 		return &bpf_copy_to_buffer_proto;
 	default:
 		return bpf_base_func_proto(func_id);
@@ -173,13 +152,6 @@ run_bpf_redactor(struct tracepoint* tp, void *ctx)
 	struct tracepoint_func* funcs = rcu_dereference(tp->funcs);
 	if (funcs)
 	{
-		pr_info("run_bpf_redactor - MB - Funkcje istnieją");
-
-		for (iter_probe = 0; funcs[iter_probe].func; iter_probe++)
-		{
-			
-		}
-		pr_info("run_bpf_redactor - MB - number of attached functions %d", iter_probe);
 		
 		for (iter_probe = 0; funcs[iter_probe].func; iter_probe++)
 		{

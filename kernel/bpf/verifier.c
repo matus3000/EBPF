@@ -9212,7 +9212,6 @@ static bool check_raw_mode_ok(const struct bpf_func_proto *fn)
 	 * which is sufficient for the helper functions we have
 	 * right now.
 	 */
-	pr_info("Chekc_raw_mode - MB - count %d", count);
 	return count <= 1;
 }
 
@@ -9225,12 +9224,9 @@ static bool check_args_pair_invalid(const struct bpf_func_proto *fn, int arg)
 	if (arg + 1 < ARRAY_SIZE(fn->arg_type))
 		is_next_size = arg_type_is_mem_size(fn->arg_type[arg + 1]);
 
-	if (base_type(fn->arg_type[arg]) != ARG_PTR_TO_MEM) {
-		pr_info("check_args_pair_invalid - MB - arg %d base_type - is_next_size %d", arg, is_next_size);
+	if (base_type(fn->arg_type[arg]) != ARG_PTR_TO_MEM)
 		return is_next_size;
-	}
 
-	pr_info("check_args_pair_invalid - MB - arg %d base_type - is_next_size %d has_size %d  is_fixed %d ", arg, is_next_size, has_size, is_fixed);
 	return has_size == is_next_size || is_next_size == is_fixed;
 }
 
@@ -9249,7 +9245,6 @@ static bool check_arg_pair_ok(const struct bpf_func_proto *fn)
 	    check_args_pair_invalid(fn, 4))
 		return false;
 
-	pr_info("check_arg_pair_ok - MB - ok");
 	return true;
 }
 
@@ -9258,25 +9253,18 @@ static bool check_btf_id_ok(const struct bpf_func_proto *fn)
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(fn->arg_type); i++) {
-		pr_info("check_btf_id_ok - i: %d, base_type: %d, arg_btf_id %p", i, base_type(fn->arg_type[i]), fn->arg_btf_id[i]);
+
 		if (base_type(fn->arg_type[i]) == ARG_PTR_TO_BTF_ID)
-		{
-			pr_info("check_btf_id_ok - MB - (base_type(fn->arg_type[i]) == ARG_PTR_TO_BTF_ID) true");
 			return !!fn->arg_btf_id[i];
-		}
+		
 		if (base_type(fn->arg_type[i]) == ARG_PTR_TO_SPIN_LOCK)
-		{
-			pr_info("check_btf_id_ok - MB - ARG_PTR_TO_BTF_ID %p", fn->arg_btf_id[i]);
 			return fn->arg_btf_id[i] == BPF_PTR_POISON;
-		}
+		
 		if (base_type(fn->arg_type[i]) != ARG_PTR_TO_BTF_ID && fn->arg_btf_id[i] &&
 		    /* arg_btf_id and arg_size are in a union. */
 		    (base_type(fn->arg_type[i]) != ARG_PTR_TO_MEM ||
 		     !(fn->arg_type[i] & MEM_FIXED_SIZE)))
-		{
-			pr_info("check_btf_id_ok- MB - mem_fixed_size %d", !(fn->arg_type[i] & MEM_FIXED_SIZE));
 			return false;
-		}
 	}
 
 	return true;
@@ -20297,7 +20285,6 @@ static int check_struct_ops_btf_id(struct bpf_verifier_env *env)
 			btf_id);
 		return -ENOTSUPP;
 	}
-	pr_info("check_struct_ops_btf_id - MB - btf_id %d", btf_id);
 
 	t = st_ops->type;
 	member_idx = prog->expected_attach_type;
@@ -20380,7 +20367,6 @@ int bpf_check_attach_target(struct bpf_verifier_log *log,
 
 	if (!btf_id) {
 		bpf_log(log, "Tracing programs must provide btf_id\n");
-		pr_info("bpf_check_attach_target - MB - btf_id == 0");
 		return -EINVAL;
 	}
 	btf = tgt_prog ? tgt_prog->aux->btf : prog->aux->attach_btf;
@@ -20480,7 +20466,6 @@ int bpf_check_attach_target(struct bpf_verifier_log *log,
 
 	switch (prog->expected_attach_type) {
 	case BPF_REDACTOR:
-		pr_info("bpf_check_attach_target - MB - switch BPF_REDACTOR start");
 		if (!prog_redactor) {
 			bpf_log(log, "Only BPF_PROG_TYPE_REDACTOR can attach to BPF_REDACTOR");
 			return -EINVAL;
@@ -20490,25 +20475,17 @@ int bpf_check_attach_target(struct bpf_verifier_log *log,
 				btf_id);
 			return -EINVAL;
 		}
-		if (!btf_check_type_match(log, prog, btf, t)){
-			pr_info("bpf_check_attach_target - MB - type mismatch");
+		if (!btf_check_type_match(log, prog, btf, t))
 			return -EINVAL;
 
-		}
 		t = btf_type_by_id(btf, t->type);
 		if (!btf_type_is_func_proto(t))
-		{
-			pr_info("bpf_check_attach_target - MB - is func proto fail");
 			return -EINVAL;
-		}
 
 
 		ret = btf_distill_func_proto(log, btf, t, tname, &tgt_info->fmodel);
-		if (ret < 0) {
-			pr_info("bpf_check_attach_target - distil fail");
+		if (ret < 0)
 			return ret;
-		}
-		pr_info("bpf_check_attach_target - MB - switch BPF_REDACTOR end");
 		break;
 	case BPF_TRACE_RAW_TP:
 		if (tgt_prog) {

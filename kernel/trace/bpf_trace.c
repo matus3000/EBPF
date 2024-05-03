@@ -61,7 +61,6 @@ static struct bpf_raw_event_map *bpf_get_raw_tracepoint_module(const char *name)
 	struct bpf_trace_module *btm;
 	unsigned int i;
 
-	pr_info("bpf_get_raw_tracepoint_module - MB - start");
 	mutex_lock(&bpf_module_mutex);
 	list_for_each_entry(btm, &bpf_trace_modules, list) {
 		for (i = 0; i < btm->module->num_bpf_raw_events; ++i) {
@@ -76,16 +75,6 @@ static struct bpf_raw_event_map *bpf_get_raw_tracepoint_module(const char *name)
 out:
 	mutex_unlock(&bpf_module_mutex);
 
-	if (ret != NULL)
-	{
-	    pr_info("bpf_get_raw_tracepoint_module - MB - end - ret is not null");
-	}
-	else
-	{
-	  pr_info("bpf_get_raw_tracepoint_module - MB - end - ret is null");
-	}
-	
-	
 	return ret;
 }
 #else
@@ -2292,8 +2281,6 @@ extern struct bpf_raw_event_map __stop__bpf_raw_tp[];
 
 struct bpf_raw_event_map *bpf_get_raw_tracepoint(const char *name)
 {
-	pr_info("bpf_get_raw_tracepoint - MB - start - name %s", name);
-	
 	struct bpf_raw_event_map *btp = __start__bpf_raw_tp;
 
 	for (; btp < __stop__bpf_raw_tp; btp++) {
@@ -2301,9 +2288,7 @@ struct bpf_raw_event_map *bpf_get_raw_tracepoint(const char *name)
 			return btp;
 	}
 
-	pr_info("bpf_get_raw_tracepoint - MB - no return from for");
         btp = bpf_get_raw_tracepoint_module(name);
-	pr_info("bpf_get_raw_tracepoint - MB -return from bpf_get_raw_tracepoint_modul");
 	return btp;
 }
 
