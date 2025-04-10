@@ -1,3 +1,6 @@
+A fork of Linux kernel used for an assignment for advanced operating system course
+which main goal was to extend EBPF by adding a new type of bpf programm. 
+
 Linux kernel
 ============
 
